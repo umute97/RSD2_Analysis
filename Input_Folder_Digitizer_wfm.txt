@@ -5,7 +5,7 @@ MaxEventPerPoint 20
 SkipPos  1
 Nchannel  8
 MaxEvent  -1
-ana /home/daq/hdd8TB/RSD2/raw/boxes15-RSD2_Run15_x_0_430_y_0_550_100waveforms_200V_10umstep_49.5pc
+ana /home/daq/hdd8TB/RSD2/raw/boxes15-RSD2_Run15_x_0_430_y_0_550_100waveforms_250V_10umstep_49.5pc.root
 nmedia 1
 Run -1
 

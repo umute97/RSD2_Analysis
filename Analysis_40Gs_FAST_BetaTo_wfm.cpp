@@ -26,19 +26,13 @@
 #include <cstdlib>
 
 // Lorenzo includes
-#include "Analysis_Digitizer.h"
+#include "Analysis_40Gs.h"
 
 using namespace std;
 
 int main()
 {
 
-  bool enable_MT = true;
-  if(enable_MT){
-      ROOT::EnableThreadSafety();
-      ROOT::EnableImplicitMT(8);
-      cout << "Multithread is enabled"<< endl;
-   }
   //bool showFFT=false;  
   bool showFFT=true;
   bool doFit = false;
@@ -47,7 +41,7 @@ int main()
 
   TFile *OutputFile = new TFile("RunXX.root","recreate");
 
-  ifstream InputCARD("Input_Folder_Digitizer_wfm.txt");
+  ifstream InputCARD("Input_Folder_FAST_BetaTo_wfm_betapc.txt");
   
   if(!InputCARD)
     {
@@ -60,9 +54,9 @@ int main()
   // read the active numnber of channels
   int ntmp;
   int  Nth = 0;
-  int np_Max = 300; // 800;
-  int np_acq = 0; // points in acquisizion, set to == size  
-  int np_offset = 100; //100; //starting point for waveform analysis
+  int np_Max = 1000; // 800;
+  int np_acq = 0;  
+  int np_offset = 0; //100;
 
  
   //  TRandom *xi = new TRandom();
@@ -70,14 +64,14 @@ int main()
   InputCARD >> pip >> ntmp;
   nchro = ntmp;
   
-  bool FWF2 = false; //file weightfield
+  bool FWF2 = false;
 
   //Waveform variables
 
 
 
   //  const Int_t max_samples=20000;
-  // const Int_t max_samplesrec=int(max_samples/samplesfact)+100:
+  // const Int_t max_samplesrec=int(max_samples/samplesfact)+100;
 
   // SetRootFile(doFit,showFFT,"RunXX.root");
   
@@ -94,42 +88,33 @@ int main()
   OutTree->Branch("event",&event,"event/I");
   OutTree->Branch("nrun",&nrun,"nrun/I");
   OutTree->Branch("nchro",&nchro,"nchro/I");
-  OutTree->Branch("npos",&npos,"npos/I");
-  
-  //  OutTree->Branch("WF2gain",&WF2gain,"WF2gain/D");
-  // OutTree->Branch("WF2xpos",&WF2xpos,"WF2xpos/D");
-  // OutTree->Branch("WF2angle",&WF2angle,"WF2angle/D");
+  OutTree->Branch("WF2gain",&WF2gain,"WF2gain/D");
+  OutTree->Branch("WF2xpos",&WF2xpos,"WF2xpos/D");
+  OutTree->Branch("WF2angle",&WF2angle,"WF2angle/D");
 
-  OutTree->Branch("XPos",&XPos,"XPos/D");
-  OutTree->Branch("YPos",&YPos,"YPos/D");
-  OutTree->Branch("XPad",XPad,"XPad[nchro]/D");
-  OutTree->Branch("YPad",YPad,"YPad[nchro]/D");
-  OutTree->Branch("Dist",Dist,"Dist[nchro]/D"); //disatanza dei punti dai pad
-  
+  OutTree->Branch("t_bck",t_bck,"t_bck[nchro]/D");
+  OutTree->Branch("t_pul",t_pul,"t_pul[nchro]/D");
 
-  OutTree->Branch("t_bck",t_bck,"t_bck[nchro]/D"); //beginning od the signal
-  OutTree->Branch("t_pul",t_pul,"t_pul[nchro]/D"); //end of sìgnal
-
-  OutTree->Branch("maxD",maxD,"maxD[nchro]/D"); 
+  OutTree->Branch("maxD",maxD,"maxD[nchro]/D");
   OutTree->Branch("area",area,"area[nchro]/D");
   OutTree->Branch("ampl",ampl,"ampl[nchro]/D");
-  OutTree->Branch("Toffset",Toffset,"Toffset[nchro]/D"); //forse vuoto
-  OutTree->Branch("ampl_chi2",ampl_chi2,"ampl_chi2[nchro]/D"); //chi2 of the ampl fit
-  OutTree->Branch("dVdt3070",dVdt3070,"dVdt3070[nchro]/D"); 
+  OutTree->Branch("Toffset",Toffset,"Toffset[nchro]/D");
+  OutTree->Branch("ampl_chi2",ampl_chi2,"ampl_chi2[nchro]/D");
+  OutTree->Branch("dVdt3070",dVdt3070,"dVdt3070[nchro]/D");
   OutTree->Branch("dVdt1030",dVdt1030,"dVdt1030[nchro]/D");
   OutTree->Branch("dVdt2080",dVdt2080,"dVdt2080[nchro]/D");
 
-  OutTree->Branch("bck",bck,"bck[nchro]/D"); //baseline?
-  OutTree->Branch("max_bck_before",max_bck_before,"max_bck_before[nchro]/D"); 
+  OutTree->Branch("bck",bck,"bck[nchro]/D");
+  OutTree->Branch("max_bck_before",max_bck_before,"max_bck_before[nchro]/D");
   OutTree->Branch("rms_bck_before",rms_bck_before,"rms_bck_before[nchro]/D");
   OutTree->Branch("max_bck_after",max_bck_after,"max_bck_after[nchro]/D");
   OutTree->Branch("rms_bck_after",rms_bck_after,"rms_bck_after[nchro]/D");
 
 
-  OutTree->Branch("t_cent",t_cent,"t_cent[nchro]/D"); //time at centroid of the signal
+  OutTree->Branch("t_cent",t_cent,"t_cent[nchro]/D");
   
-  OutTree->Branch("t_level10",t_level10,"t_level10[nchro]/D"); //probably does not make sense for the digitizer 
-  OutTree->Branch("t_level15",t_level15,"t_level15[nchro]/D"); 
+  OutTree->Branch("t_level10",t_level10,"t_level10[nchro]/D");
+  OutTree->Branch("t_level15",t_level15,"t_level15[nchro]/D");
   OutTree->Branch("t_level20",t_level20,"t_level20[nchro]/D");
   OutTree->Branch("t_level30",t_level30,"t_level30[nchro]/D");
   OutTree->Branch("t_level40",t_level40,"t_level40[nchro]/D");
@@ -140,7 +125,7 @@ int main()
   OutTree->Branch("t_level200",t_level200,"t_level200[nchro]/D");
   OutTree->Branch("t_level300",t_level300,"t_level300[nchro]/D");
 
-  OutTree->Branch("trail_t_level10",trail_t_level10,"trail_t_level10[nchro]/D"); //on the other part of the signal
+  OutTree->Branch("trail_t_level10",trail_t_level10,"trail_t_level10[nchro]/D");
   OutTree->Branch("trail_t_level20",trail_t_level20,"trail_t_level20[nchro]/D");
   OutTree->Branch("trail_t_level30",trail_t_level30,"trail_t_level30[nchro]/D");
   OutTree->Branch("trail_t_level40",trail_t_level40,"trail_t_level40[nchro]/D");
@@ -167,7 +152,7 @@ int main()
   OutTree->Branch("cfd80",cfd80,"cfd80[nchro]/D");
   OutTree->Branch("cfd90",cfd90,"cfd90[nchro]/D");
 
-  OutTree->Branch("Ncfd05",Ncfd05,"Ncfd05[nchro]/I"); //N at which the signal reaches 5 pc
+  OutTree->Branch("Ncfd05",Ncfd05,"Ncfd05[nchro]/I");
   OutTree->Branch("Ncfd10",Ncfd10,"Ncfd10[nchro]/I");
   OutTree->Branch("Ncfd15",Ncfd15,"Ncfd15[nchro]/I");
   OutTree->Branch("Ncfd20",Ncfd20,"Ncfd20[nchro]/I");
@@ -187,7 +172,7 @@ int main()
   OutTree->Branch("trail_Ncfd90",trail_Ncfd90,"trail_Ncfd90[nchro]/I");
 
   
-  OutTree->Branch("t_rms3",t_rms3,"t_rms3[nchro]/D"); //time at 3xRMS
+  OutTree->Branch("t_rms3",t_rms3,"t_rms3[nchro]/D");
   OutTree->Branch("t_rms5",t_rms5,"t_rms5[nchro]/D");
   OutTree->Branch("trail_cfd10",trail_cfd30,"trail_cfd10[nchro]/D");
   OutTree->Branch("trail_cfd30",trail_cfd30,"trail_cfd30[nchro]/D");
@@ -195,9 +180,9 @@ int main()
   OutTree->Branch("trail_cfd70",trail_cfd70,"trail_cfd70[nchro]/D");
   OutTree->Branch("trail_cfd90",trail_cfd90,"trail_cfd90[nchro]/D");
 
-  OutTree->Branch("samples",samples,"samples[nchro]/I"); //n of samples of the waveform
+  OutTree->Branch("samples",samples,"samples[nchro]/I");
   //  OutTree->Branch("samplesrec",samples,"samples[nchro]/I");
-  OutTree->Branch("t_max",t_max,"t_max[nchro]/D"); //time at maximum
+  OutTree->Branch("t_max",t_max,"t_max[nchro]/D");
  
   
   if(doFit)
@@ -225,19 +210,19 @@ int main()
       OutTree->Branch(leaf.str().c_str(),&samplesrec[i],leafl.str().c_str());
       leaf.str("");leaf.clear();leafl.str("");leafl.clear();
     
-      leaf << "amp" << i; //wfm as it comes from digi
+      leaf << "amp" << i;
       leafl << "amp" << i <<"[samplesrec_" << i << "]/D";
       OutTree->Branch(leaf.str().c_str(),&amprec[i][0],leafl.str().c_str());
       
       leaf.str("");leaf.clear();leafl.str("");leafl.clear();
-      leaf << "m_amp" << i; //positive and baseline suptracted
+      leaf << "m_amp" << i;
       leafl << "m_amp" << i <<"[samplesrec_" << i << "]/D";
 	    //leafl << "m_amp" << i <<"[samples[" << i << "]]/D";
       OutTree->Branch(leaf.str().c_str(),&m_amprec[i][0],leafl.str().c_str());
       cout << " =  " << leafl.str().c_str() << endl;
 
       leaf.str("");leaf.clear();leafl.str("");leafl.clear();
-      leaf << "der_amp" << i; //derivative
+      leaf << "der_amp" << i;
       leafl << "der_amp" << i <<"[samplesrec_" << i << "]/D";
       OutTree->Branch(leaf.str().c_str(),&d_amprec[i][0],leafl.str().c_str());
 
@@ -291,8 +276,8 @@ int main()
   double ThresholdL[NArrayL] = {10, 15,20,30,40,50,60,80,100,200,300};
   double TValuesL[NArrayL];
   int NTValuesL[NArrayL];
-  int NArr = 0;
-  
+				    int NArr = 0;
+
   // Levels trail array
   const int TrailNArrayL = 12;
   double TrailThresholdL[TrailNArrayL] = {10,20,30,40,50,60,80,100,120,140,160,180};
@@ -305,46 +290,25 @@ int main()
   double ThresholdF[NArrayF] = {0.05, 0.1,0.15,0.20,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9};
   double TValuesF[NArrayF];
   int NTValuesF[NArrayF];
-  
+
   // fraction trail array
   const int TrailNArrayF = 5;
   double TrailThresholdF[TrailNArrayF] = {0.1,0.3,0.5,0.7,0.9};
   double TrailTValuesF[TrailNArrayF];
   int TrailNTValuesF[TrailNArrayF];
   
-  npos= 0;
-  
-  //old
-  //  int XPosArray[18] = {0,240,0,240,140,440,140,340,540,640,0,0,440,640,0,0,0,0};
-  // int YPosArray[18] = {0,609,0,263,436,263,90,90,90,609,0,0,609,263,0,0,0,0};
-  
-  //new
- // int YPosArray[18] = {0,240,0,240,140,440,140,340,540,640,0,0,440,640,0,0,0,0};
- // int XPosArray[18] = {0,609,0,263,436,263,90,90,90,609,0,0,609,263,0,0,0,0};
-  
-
-   int XPosArray[18] = {1680,1680,1230,0,780,780,330,330,330,0,780,0, 0, 1230, 0, 1680, 0,0};
-   int YPosArray[18] = {451,901,451,0, 901,451,901,451,1,  0,  1,0, 0,1,0,1,0,0};
-
-  for(i=0;i<nchro;i++)
+  //Loop on different runs
+  while(1)
     {
-      XPad[i] = XPosArray[i];
-      YPad[i] = YPosArray[i];
-      cout << "Pad " << i << " is in " << XPad[i]<<","<<YPad[i] << endl;
-    }
-	
-	//Loop on different runs
-    while(1)
-	  {
-	    pip="";
-	    toffee="";
-	    if(InputCARD.eof())
-	      break;
-	    
-	    //Read run variables
-	    InputCARD >> pip >> nrun >> pip >> ntrig >>  pip >> Max_eventperpoint >>pip >> Max_skippos >> pip >> nchro >> pip >> MaxEvt;
-	    if (nrun == -1 ) break;
-	    cout << endl << endl << "Run " << nrun << "\t " << nchro << " channels" << " Events to be analized = " << MaxEvt - ntrig << " Event per point = " << Max_eventperpoint << " Skipping points # " << Max_skippos << endl;
+      pip="";
+      toffee="";
+      if(InputCARD.eof())
+	break;
+      
+      //Read run variables
+      InputCARD >> pip >> nrun >> pip >> ntrig >> pip >> nchro >> pip >> MaxEvt;
+      if (nrun == -1 ) break;
+      cout << endl << endl << "Run " << nrun << "\t " << nchro << " channels" << " Events to be analized = " << MaxEvt - ntrig << endl;
       //Note: ntrig is the number of the FIRST trigger of the run
 
       //     if ( (nrun >= 23000 && nrun <= 24000 ) || (nrun >= 33000 && nrun <= 34000 ) )
@@ -367,9 +331,8 @@ int main()
       sprintf(title,"%s",InputNA.c_str());
 
       cout << endl << " File name:" << endl << title << " averaging " << nme << " points " <<endl;
-
-      
-      //      FreqCut[1] = 0;
+      FreqCut[0] = 0;
+      FreqCut[1] = 0;
       if (nme<0)
 	{
 	  FreqCut[0] = -nme*1.e6;
@@ -389,36 +352,21 @@ int main()
 
    //  tree->SetBranchAddress("i_timestamp", &i_timestamp, &b_i_timestamp);
    // tree->SetBranchAddress("i_current", &i_current, &b_i_current);
-      //variables from input root files
-      tree->SetBranchAddress("w0", &w0, &b_w0);
       tree->SetBranchAddress("w1", &w1, &b_w1);
+      tree->SetBranchAddress("t1", &t1, &b_t1);
       tree->SetBranchAddress("w2", &w2, &b_w2);
-      tree->SetBranchAddress("w3", &w3, &b_w3);
-      tree->SetBranchAddress("w4", &w4, &b_w4);
-      tree->SetBranchAddress("w5", &w5, &b_w5);
-      tree->SetBranchAddress("w6", &w6, &b_w6);
-      tree->SetBranchAddress("w7", &w7, &b_w7);
-      tree->SetBranchAddress("w8", &w8, &b_w8);
-      tree->SetBranchAddress("w9", &w9, &b_w9);
-      tree->SetBranchAddress("w10", &w10, &b_w10);
-      tree->SetBranchAddress("w11", &w11, &b_w11);
-      tree->SetBranchAddress("w12", &w12, &b_w12);
-      tree->SetBranchAddress("w13", &w13, &b_w13);
-      tree->SetBranchAddress("w14", &w14, &b_w14);
-      tree->SetBranchAddress("w15", &w15, &b_w15);
-      tree->SetBranchAddress("trg0", &trg0, &b_trg0);
-      tree->SetBranchAddress("trg1", &trg1, &b_trg1);
-      tree->SetBranchAddress("pos", &pos, &b_pos);
-      tree->SetBranchAddress("size", &size, &b_size);
-      
+      tree->SetBranchAddress("t2", &t2, &b_t2);
+ //     tree->SetBranchAddress("w3", &w3, &b_w3);
+ //     tree->SetBranchAddress("t3", &t3, &b_t3);
+
+      //      tree->SetBranchAddress("w4", &w4, &b_w4);
+      // tree->SetBranchAddress("t4", &t4, &b_t4);
 
       
       
       Long64_t nentries = tree->GetEntries();
       
       cout << "Number of events = " << nentries << endl;
-
-      
       if (MaxEvt == -1) MaxEvt = nentries;
       string mystr;
       
@@ -427,11 +375,11 @@ int main()
       string RunRoot;
       RunRoot = String_nrun[0];
 
+      
 
      
       emptycount=0;
 
-      skippos =0;
 
       // here we are looping on each event
       while(running)  //running is set on 1 as long as all the channels have data for a trigger event
@@ -440,8 +388,7 @@ int main()
 	  ntrig++;
 	  event++;
 
-	  //	   cout << "Event = " << event << " at trigger = " << ntrig << endl;
-	  
+	 // cout << "Event = " << event << " at trigger = " << ntrig << endl;
 	  if (MaxEvt > 0 && ntrig >MaxEvt) goto Write;
 	  if(event==1)
 	    cout << "Event = " << event << " at trigger = " << ntrig << endl;
@@ -449,57 +396,44 @@ int main()
 	    cout << "Event = " << event << " at trigger = " << ntrig << endl;
 	  tree->GetEntry(ntrig);
 	  
-
-
-	  //  if(pos[0][0]>1000 || pos[0][1]>1000) continue; 
- 
-
-	  if ( pos[0][0] != XPos || pos[0][1] != YPos)
+  //   if (event>5000) cout << "Line 399" << endl;  
+	  //Fill each channel of the event
+	  //	  cout << "File with " << nchro << " active channels" << endl;
+	  nmedia[0] = nme;
+	  nmedia[2] = 3;
+	  nmedia[1] = 3;
 	      
-	    {
-	      eventperpoint = 0;
-	      XPos = pos[0][0];
-	      YPos = pos[0][1];
-	      // if(npos%50==0)
-	      //	cout << "Position = " << npos << " at " << XPos <<","<<YPos << endl;
-	      if ( skippos>=Max_skippos)
-		{
-		  skippos = 0;
-		  npos++;
-		  if(npos%50==0)
-		    cout << "Position = " << npos << " at " << XPos <<","<<YPos << " " << skippos << " " << Max_skippos << endl;
-		}
-	      else if(skippos<Max_skippos)
-		{
-		  skippos++;
-		}
-	    }
-	  if (skippos !=0) continue;
-	      
-	  eventperpoint++;
-
-	  if (eventperpoint>Max_eventperpoint && Max_eventperpoint>-1) continue;
-
-
-
+    //  if (event>5000) cout << "Line 405" << endl;  
 	  
 	  for(i=0;i<nchro;i++)
 	    {
-
-	      FreqCut[i] = 0;
-
-	      if (nme<0)
-		  FreqCut[i] = -nme*1.e6;
-	      else
-		nmedia[i] = nme;		
-
 	      samples[i]=0;
 	      ampl_chi2[i]=0;
 	      AMax[i]=0;
 	      NMax[i]=0;
 	      RunBit = String_nrun[i+1];
 	      
+	      //  cout << "check 1 " << i << endl;
 
+	      // fix file number for certain runs 
+	      //	      if (atoi(RunRoot.c_str())==9 && atoi( RunBit.c_str()))
+	      //	ntrig ++;
+
+	   //   cout << " Line 420" << endl;
+	    //  if (ntmp>0) sprintf(number,"%d", ntrig);
+	    //  if (ntmp<0) sprintf(number,"%d", ntrig);
+
+    //    cout << " Line 424" << endl;
+
+	      //	      if (ntmp>0) sprintf(number,"%d", ntrig);
+	      
+ 
+	      //	      if (ntrig==1)
+	      //	cout << " First file for channel " << i << " is " << datafile[i].str() << endl;
+
+
+
+	      //cout << "check 1fin" << endl;
 	      samples[i]=0;
 	      tempsum=0;
 	      np=0; 
@@ -515,72 +449,66 @@ int main()
 	     
 	      if (i ==0 && ntrig ==0)
 		{
-		  cout << "Number of samples in the acquisition = " << size << endl;
-		  //	  cout << "Position:  x =  " << pos[0][0] << " y =  " << pos[0][1] <<endl;
-		  
-		  np_acq = size;
-
-		  //		  if (np_acq>np_Max) np_Max = np_acq-1;// np_offset= 600;
-		  cout << "Number of samples in the analysis = " << np_Max << " starting at samples " << np_offset << endl;
-		  if (np_Max+np_offset>np_acq)
+		  DT = t1[0][1]-t1[0][0];
+		  for (int npp =1;npp<50000;npp++)
 		    {
-		      cout << "Number of samples in analysis larger than in the acquisition = " << np_Max+np_offset  << " > " << np_acq << endl;
-		      cout << "The program STOPS" << endl;
-		      return 1;
-		    }		  				
-		    
+		      if (t1[0][npp]- t1[0][npp-1] !=DT)
+			{
+			  np_acq = npp-1;
+			  cout << "Number of samples in the acquisition = " << np_acq << endl;
+			  // if (np_acq>1999 && np_acq<2100) np_offset= 600;
+			  // else np_offset= 0;
+			  if (np_acq>np_Max) np_Max = np_acq-1;// np_offset= 600;
+			  cout << "Number of samples in the analysis = " << np_Max << " starting at samples " << np_offset << endl;
+			  if (np_Max+np_offset>np_acq)
+			    {
+			      cout << "Number of samples in analysis larger than in the acquisition = " << np_Max+np_offset  << " > " << np_acq << endl;
+			      cout << "The program STOPS" << endl;
+			     return 1;
+			    }
+			  
+			  break;
+
+			}
+		    }
 		}
 
-	      Dist[i] = sqrt( pow(XPad[i]-XPos,2)+pow(YPad[i]-YPos,2));
-
-	      //	      cout << "check 0" << endl;
-	      
+// if (event>5000) cout << "Line 475" << endl;  
+	      np=0;
 	      for (int npp =np_offset;npp<np_Max+np_offset;npp++)
 		{
-		  timeS[np] =  0.2*(npp-np_offset);
-		  if (np ==0 ) Toffset[i] = 0;
+    //   if (event>5015) cout << npp << " " << i << " " << np << " " << nchro << endl;  
 		  
-		  if (i== 0)		     
-		      amp[i][np] = w0[0][npp];		    
-		  else if (i ==1 )		    
-		      amp[i][np] = w1[0][npp];		    
-		  else if (i ==2 )		    
-		      amp[i][np] = w2[0][npp];		    
-		  else if (i ==3 )		    
-		      amp[i][np] = w3[0][npp];
-		  else if (i ==4 )		    
-		      amp[i][np] = w4[0][npp];		    
-		  else if (i ==5 )		    
-		      amp[i][np] = w5[0][npp];		    
-		  else if (i ==6 )		    
-		      amp[i][np] = w6[0][npp];
-		  else if (i ==7 )		    
-		      amp[i][np] = w7[0][npp];		    
-		  else if (i ==8 )		    
-		      amp[i][np] = w8[0][npp];		    
-		  else if (i ==9 )		    
-		      amp[i][np] = w9[0][npp];
-		  else if (i ==10 )		    
-		      amp[i][np] = w10[0][npp];		    
-		  else if (i ==11)		    
-		      amp[i][np] = w11[0][npp];		    
-		  else if (i == 12)		    
-		      amp[i][np] = w12[0][npp];
-		  else if (i ==13 )		    
-		    amp[i][np] = w13[0][npp];		    
-		  else if (i ==14)		    
-		    amp[i][np] = w14[0][npp];		    
-		  else if (i ==15)		    
-		    amp[i][np] = w15[0][npp];
-		  else if (i ==16)		    
-		    amp[i][np] = trg0[0][npp];
-		  else if (i ==17)		    
-		    amp[i][np] = trg1[0][npp];		  
+		  if (i== 0)
+		    {
+		      //     cout <<  npp << " " << t1[0][npp] << endl;
+		      if (np ==0 ) Toffset[i] = t1[0][npp]*1E9;
+		      timeS[np] =  t1[0][npp]*1E9-Toffset[i];
+		      amp[i][np] = w1[0][npp]*1E3;
+		    }
+		  else if (i ==1 )
+		    {
+		      if (np ==0 ) Toffset[i] = t2[0][npp]*1E9;
+		      timeS[np] =  t2[0][npp]*1E9-Toffset[0]; // remove always the offset of the first channel
+		      amp[i][np] = w2[0][npp]*1E3;
+		    }
+		  else if (i ==2 )
+		    {
+		      if (np ==0 ) Toffset[i] = t3[0][npp]*1E9;
+		      timeS[np] =  t3[0][npp]*1E9-Toffset[0]; // remove always the offset of the first channel
+		      amp[i][np] = w3[0][npp]*1E3;
+		    }
+		  else if (i ==3 )
+		    {
+		      if (np ==0 ) Toffset[i] = t4[0][npp]*1E9;
+		      timeS[np] =  t4[0][npp]*1E9-Toffset[0]; // remove always the offset of the first channel
+		      amp[i][np] = w4[0][npp]*1E3;
+		    }
 		  np++;
 		}
 
-
-
+ // if (event>5000) cout << "Line 510" << endl;  
+   // cout << " Line 504" << endl;
 	      if ( np < np_Max-10 && event<20) cout << "Warning: file reading ended too soon: read point np = " << np << " instead of np_max = " << np_Max << endl;
 	      
 	      DT = (timeS[10]-timeS[9]); // delta T in nanosecond
@@ -592,26 +520,34 @@ int main()
 	      for (np = 0;np<samples[i];np++)
 		// for (np = 20/DT;np<25/DT;np++)
 		{
-		  
-		  if (fabs(amp[i][np]-amp[i][0])>AMax[i]) 
+
+		  if ( !FToffeeCh[i] && fabs(amp[i][np]-amp[i][0])>AMax[i]) 
 		    {
 		      AMax[i] = fabs(amp[i][np]-amp[i][0]); 
 		      TMax[i] = timeS[np];
-		      polarity[i] = (amp[i][np]-amp[i][0])/fabs(amp[i][np]-amp[i][0]);
-		      NMax[i] = np;		      		     
+		      if (amp[i][np] != 0) polarity[i] = amp[i][np]/fabs(amp[i][np]);
+		      NMax[i] = np;
 
 		    }
-
+		  else if  (FToffeeCh[i] && fabs(amp[i][np]-amp[i][0])>AMax[i]) 
+		    {
+		      //		       cout << " np = " << np << " "  << timeS[np] << " " << amp[i][np]-amp[i][0]  << endl; 
+		      AMax[i] = fabs(amp[i][np]-amp[i][0]) ; 
+		      TMax[i] = timeS[np];
+		      //		      polarity[i] = 1;
+		      if (amp[i][np] != 0) polarity[i] = amp[i][np]/fabs(amp[i][np]);
+		      NMax[i] = np;
+		    }
 		}
 	      
-
+ // if (event>5000) cout << "Line 543" << endl;  
 	      if (ntrig == 2  && i == 0) cout << "Number of points: " << np  << " with a time step of " << DT << " [ns] " << endl;
 
-	      if (ntrig <20 ) cout << "Event: " << event << " channel " << i << " has maximum value of " << AMax[i] << " [mV] at  " <<  TMax[i] << " [ns] " << " on sample " << NMax[i] << " polarity = " << polarity[i] << " at position x-y " << pos[0][0] <<", " << pos[0][1] <<  endl;
+	      if (ntrig <20  ) cout << "Event: " << event << " channel " << i << " has maximum value of " << AMax[i] << " [mV] at  " <<  TMax[i] << " [ns] " << " on sample " << NMax[i] << " polarity = " << polarity[i] << endl;
 	      if ( TMax[i] ==0 ||  AMax[i]>10000)
 		{
-		  //  cout << "Maximum at 0 ns, or signal too large ==> something must be wrong. The program skips this event" << endl;
-		  //  continue;
+		  cout << "Maximum at 0 ns, or signal too large ==> something must be wrong. The program skips this event" << endl;
+		  continue;
 		}
 		  
 	      //  if (ampl[0]<10) goto NoRoot;
@@ -622,21 +558,16 @@ int main()
 		}
 	      else
 		{
-		  t_bck[i] = 5. ;
-		  t_pul[i] = 30.;
+		  t_bck[i] = 0. ;
+		  t_pul[i] = 15.;
 		}
 
 	      //	      t_bck[i] = 8. ;
 	      // t_pul[i] = 12.;
-
-
-	      //	      cout << "check 1" << endl;
 	      
 	      if (FreqCut[i] == 0)
 		{
-		  //	  cout << " Check " << i << endl;
 		  mobileAVG(samples[i],&amp[i][0],nmedia[i],&m_amp[i][0]);
-		  // cout << " Check " << i <<  " samples " << samples[i] << " " << m_amp[i][100] << endl; 
 		}
 	      else
 		{
@@ -655,9 +586,10 @@ int main()
 		      FFTcomplextoreal(samples[i],&FFT_real_cut[i][0],&FFT_comp_cut[i][0],&m_amp[i][0]);
 		    }
 		}
+	      
+	      
+	  //    if (event>5000  ) cout << " line 586" << endl;
 
-
-	
 	      for(j=0;j<samples[i];j++)
 		{
 		  if(j%CAMPFACT==0) // option to undersample the data by CAMPFACT
@@ -677,37 +609,32 @@ int main()
 	      
 	      samplesrec[i]=nprec;
 		
-	      // cout << "check 2 " << i << endl;
+	      //	      cout << "check 2 " << i << endl;
 
 	      // compute the derivative on the signal shape
-	      Derivative( DT, samples[i],&m_amprec[i][0],&der_amp[i][0]);
-
-	      //   cout << " Check " << i <<  " samples " << samples[i] << " " << m_amprec[i][100] << endl; 
+	      if (!FToffeeCh[i]) Derivative( DT, samples[i],&m_amprec[i][0],&der_amp[i][0]);
+	      	      
 	      //calculate the baseline rms and amplitude after the signal, the from 10 to 15 ns after the max
 	     
 	      //	      if (!FWF2) Background(&m_amprec[i][0], samples[i]-2./DT,samples[i]-1./DT,&bck[i],&max_bck_after[i],&rms_bck_after[i]);
 	      Background(&m_amprec[i][0], np_Max-5./DT,np_Max-5,&bck[i],&max_bck_after[i],&rms_bck_after[i]);
 
-	      //calculate the baseline rms and amplitude before the signal, from  0 to 5 ns 
-	      //   cout << " Check " << i <<  "bck " << bck[i] << " " <<  max_bck_after[i]<< endl; 
+	      //calculate the baseline rms and amplitude before the signal, from -10 to -5 ns before the signal
+
 	      //	      Background(&m_amprec[i][0], NMax[i]-10./DT, NMax[i]-5./DT,&bck[i],&max_bck[i],&rms_bck[i]);
 	     Background(&m_amprec[i][0], 0./DT, 5./DT,&bck[i],&max_bck_before[i],&rms_bck_before[i]);
 
 	     //	      std::cout << t_bck[i]-5 << " " << t_bck[i] << std::endl;
-	     //  cout << " Check " << i <<  "bck " << bck[i] << " " <<  max_bck_before[i]<< endl; 
+	      
 	     
-	      
-	     Amplitudes(samples[i],&m_amprec[i][0],timeS,bck[i],t_bck[i],t_pul[i],&ampl[i],&t_max[i],&ampl_chi2[i]);
-	      
-
-
-	      //  cout << " Check " << i <<  "bck " << bck[i] << "  ampl " <<  ampl[i]<< endl; 
+	    //  if (event >5000  ) cout << " line 625" << endl;
+	      if(!FToffeeCh[i]) Amplitudes(samples[i],&m_amprec[i][0],timeS,bck[i],t_bck[i],t_pul[i],&ampl[i],&t_max[i],&ampl_chi2[i]);
+	      else  Amplitudes_NF(&m_amprec[i][0],timeS,bck[i],NMax[i],&ampl[i],&t_max[i]);
 	      //Amplitudes_NF(&m_amprec[i][0],timeS,bck[i],NMax[i],&ampl[i],&t_max[i]);
 
 	      
-	      //  if (i==0 &&( ampl[0] < 200 || rms_bck_before[0]>10)  && toffee =="dig") goto NoRoot; // for FAST2_Dig
-	      // if (i==1 && rms_bck_after[1]>8  && toffee =="dig") goto NoRoot; // for FAST2_Dig
-	      //     if (i==0 && ampl[0] < 10) goto NoRoot;
+	      if (i==0 &&( ampl[0] < 200 || rms_bck_before[0]>10)  && toffee =="dig") goto NoRoot; // for FAST2_Dig
+	      if (i==0 && ampl[0] < 10) goto NoRoot;
 	      //  if (i==0 && rms_bck_after[0]>10) goto NoRoot;
 	      
 	      	     
@@ -737,6 +664,7 @@ int main()
 		  if ( TrailThresholdL[kl]<ampl[i] )  TrailNArr++;
 		}
 
+// if (event >5000  ) cout << " line 662" << endl;  
 	      for (int kl = 0;  kl<NArrayL; kl++)
 		{
 		  TValuesL[kl]=0;
@@ -748,7 +676,10 @@ int main()
 		  TrailTValuesL[kl]=0;
 		  TrailNTValuesL[kl]=0;
 		}
+		    
+	      // Calculate Time at Level values
 
+	      //   cout << " NArr " << NArr << " Amp = "  << m_amprec[i][ (int) NMax[i]] << " " << ampl[0] << " bck[i] = " << bck[i] << endl;
 	      
 	       if (NArr>0)      Levtime_N_array( &NTValuesL[0], &TValuesL[0],  NArr, &ThresholdL[0], &m_amprec[i][0],DT,NMax[i],bck[i],Interpolation);
 	       if (TrailNArr>0) TrailLevtime_N_array(&TrailTValuesL[0],  TrailNArr, &TrailThresholdL[0], samples[i], &m_amprec[i][0],DT,NMax[i],bck[i],Interpolation);
@@ -792,6 +723,7 @@ int main()
 	       
 	       // Fill Constant Fraction Values
 	       
+   //      if (event >5000  ) cout << " line 721" << endl;
 	       Ncfd05[i] = NTValuesF[0];
 	       Ncfd10[i] = NTValuesF[1];
 	       Ncfd15[i] = NTValuesF[2];
@@ -837,7 +769,8 @@ int main()
 	       
 	       Charges(&m_amprec[i][0],DT,Ncfd10[i],trail_Ncfd30[i],&area[i],&totcha[i],50);
 	       
-	       //	      cout << "check 3 " << i << endl;
+	  //     if (event >5000  ) cout << " line 767 " <<  DT << endl;
+         //	      cout << "check 3 " << i << endl;
 	       // 
 	       if (( (cfd10[i]/DT) <samples[i] &&   (cfd20[i]/DT) < samples[i] && (cfd30[i]/DT)<samples[i]
 		     &&  (cfd70[i]/DT) <samples[i]&&   (cfd80[i]/DT) <samples[i]) &&
@@ -845,6 +778,8 @@ int main()
 		     &&  (cfd70[i]/DT) >0 &&   (cfd80[i]/DT) >0))
 		 {
 		   
+    //   if (event >5000  ) cout << " line 776" << endl;
+
 		   if ((cfd30[i]- cfd10[i]) != 0)
 		     dVdt1030[i] =( m_amprec[i][ int (cfd30[i]/DT)]- m_amprec[i][int (cfd10[i]/DT)])/(cfd30[i]- cfd10[i]);
 		   
@@ -855,7 +790,7 @@ int main()
 		     dVdt2080[i] =( m_amprec[i][ int (cfd80[i]/DT)]- m_amprec[i][int (cfd20[i]/DT)])/(cfd80[i]- cfd20[i]);
 		 }
 	       // cout << dVdt3070[i] << endl;
-	       
+	   //    if (event >5000  ) cout << " line 786" << endl;
 	       if(doFit)
 		 {
 		   
@@ -869,23 +804,27 @@ int main()
 	       nprec=0;
 	      //
 	      maxD[i] = 0;
+   //     if (event >5000  ) cout << " line 802" << samples[i] << endl; 
 	      for(int l=0;l<samples[i];l++)
-		{
-		  m_amprec[i][l] = m_amprec[i][l]-bck[i];
-		  if(l%CAMPFACT==0)
+
+    		{
+		      m_amprec[i][l] = m_amprec[i][l]-bck[i];
+		   if(l%CAMPFACT==0)
 		    {
 		      d_amprec[i][nprec]=der_amp[i][l];
 		      if (fabs(d_amprec[i][nprec])>fabs(maxD[i])) 		       
 			maxD[i] = fabs(d_amprec[i][nprec]);
 			  
 		      nprec++;
-		    }
+		    }     
 		}
+
+  //  if (event >5000  ) cout << " line 814" << endl;
 	      //	      cout << " # of chr = " << i << endl;  
-	    } // end loop on channels
+  } // end loop on channels
 	  //	  f->Close();
 
-	  
+	 // if (event >5000  ) cout << " line 816" << endl;
 	  if(running==0 && emptycount<100)
 	    {
 	      running=1;
@@ -901,10 +840,10 @@ int main()
 	  //  if (ampl[0] > 10 || ampl[1] > 10) 
 	  // {
 
-	  
+	 // if (event >5000  ) cout << " line 832" << endl;
 	  //	  w->Fill();
 	  OutTree->Fill();
-
+// if (event >5000  ) cout << " line 835" << endl;
 	NoRoot:
 	  continue;
 	  // }
