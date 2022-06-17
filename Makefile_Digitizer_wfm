@@ -1,0 +1,6 @@
+#################################
+#			Makefile			#
+#################################
+
+WaveAnalyzer: Analysis_40Gs.h Analysis_Digitizer_wfm.cpp 
+	g++ -O3 -Wall -Wextra -o Analysis_Digitizer_wfm Analysis_Digitizer_wfm.cpp   `root-config --cflags --glibs`   
