@@ -9,7 +9,6 @@ ana /home/daq/hdd8TB/RSD2/raw/boxes15-RSD2_Run15_x_0_430_y_0_550_100waveforms_20
 nmedia 1
 Run -1
 
-
 Run 275
 StartingTrig 0
 MaxEventPerPoint 20
