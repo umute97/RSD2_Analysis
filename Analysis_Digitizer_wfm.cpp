@@ -12,6 +12,7 @@
 #include "TMath.h"
 #include "TVirtualFFT.h"
 #include <unordered_map>
+#include "TROOT.h"
 
 // Standard includes
 #include <vector>
@@ -34,11 +35,11 @@ int main()
 {
 
   bool enable_MT = true;
-  if(enable_MT){
-      ROOT::EnableThreadSafety();
-      ROOT::EnableImplicitMT(8);
-      cout << "Multithread is enabled"<< endl;
-   }
+  //  if(enable_MT){
+  //   ROOT::EnableThreadSafety();
+  //    ROOT::EnableImplicitMT(8);
+  //    cout << "Multithread is enabled"<< endl;
+  // }
   //bool showFFT=false;  
   bool showFFT=true;
   bool doFit = false;
