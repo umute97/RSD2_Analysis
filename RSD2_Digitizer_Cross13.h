@@ -34,6 +34,7 @@ public :
 Double_t param, result, Rangle;
 Double_t xtr, ytr,xrr,yrr;
 
+   const bool enable_MT = true;
 
    TCanvas *c1;
    TCanvas *c2;

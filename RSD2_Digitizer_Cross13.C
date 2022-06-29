@@ -38,7 +38,13 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
 
    TString option = GetOption();
 
-
+   //Sets the Multithread environment
+  
+  if(enable_MT){
+   ROOT::EnableThreadSafety();
+    ROOT::EnableImplicitMT(8);
+    cout << "Multithread is enabled"<< endl;
+  }
    
    /* declaring normal distribution object 'distN' and initializing its mean and standard deviation fields. */
    /* Mean and standard deviation are distribution parameters of Normal distribution. Here, we have used mean=5, and standard deviation=2. You can take mean and standard deviation as per your choice */
