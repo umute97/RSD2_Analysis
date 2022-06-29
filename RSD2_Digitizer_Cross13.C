@@ -55,8 +55,8 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
 
    Correction = 11;
 
-   datataking = 1; // = 0 old;  == 1 new data taking
-
+   datataking = 2; // = 0 old;  == 1 new data taking // == 2 W3 data taking
+   cout << "datataking: " << datataking << endl;
    
    kfactor = 1.0;
 
@@ -65,18 +65,51 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
    UseWeightedMean = 0;
    UseRotation = 0;
    SquareCut = 0; // 0 no cut, ==10 rotated cut, 1 +-250; 2 =250- 500; 3 = 500-750;
-   Rangle = 180.0* PI / 180.0;  // angle of rotation of training data
+   Rangle =  0. * PI/180.; //180.0* PI / 180.0;  // angle of rotation of training data
    
-   Radius = 30; //30;
+   Radius = 30; //30; //punti inclusi della migration matrix
 
-   AScale = 1;// 10./63. ;// gain X/66; 35, 53,66
-   NScale = 1.2;
-   TPx1 = 100;
+   AScale = 1;// 10./63. ;// gain X/66; 35, 53,66 //
+   NScale = 1;
+
+   TPx1 = 100; //dove finisce il (titolo forse)
    TPx2 = 1000;
    TPy1 = 1750;
    TPy2 = 1950;
-   
-   if (datataking == 1)
+
+   if (datataking == 2)
+     {
+       XOffset = 125;
+       YOffset = 120;
+       
+       dcchannel = 0;
+       XPa[0] = 0;
+       XPa[1] = 1300;
+       XPa[2] = 0;
+       XPa[3] = 1300;
+       XPa[4] = 0;
+       
+       YPa[0] = 0;
+       YPa[1] = 1300;
+       YPa[2] = 1300;
+       YPa[3] = 0;
+       YPa[4] = 0;
+
+
+       //       21
+       //	43
+
+       Xm1 = 4;
+       Xm2 = 2;
+       Xp1 = 3;
+       Xp2 = 1;
+       Ym1 = 4;
+       Ym2 = 3;
+       Yp1 = 2;
+       Yp2 = 1;
+
+   }
+   else if (datataking == 1)
      {
        XOffset = 140;
        YOffset = 100;
@@ -127,8 +160,7 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
        YOffset = 205;
 
      }
-     
-   sprintf(Filedatacorr,"Digitizer/Analysis_root/Croci_1300micron/Migration_Cor%3.2f_UseArea%d_Mean%d_Rotation%d_datataking%d_Cross13.txt", kfactor, UseArea, UseWeightedMean, UseRotation,datataking); //Data
+   sprintf(Filedatacorr,"W3/Croci1300micron/Migration_Cor%3.2f_UseArea%d_Mean%d_Rotation%d_datataking%d_Cross13.txt", kfactor, UseArea, UseWeightedMean, UseRotation,datataking); //Data
    sprintf(NormFiledatacorr,"Digitizer/Analysis_root/Croci_1300micron/Norm_Migration_Cor%3.2f_Cross13.txt", kfactor); //Data
    sprintf(FileSpicecorr,"LSPICE_correction/1node/ampcut0mV/table_crosses_0.75k_18.86fF.txt"); //best with 18.86
    sprintf(FileSpicecorr,"LSPICE_correction/3node/ampcut0mV/table_crosses_3.0k_2.26fF.txt"); //best with 2.26
@@ -151,7 +183,8 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
       cout << "Pad " << a << " is in " << XPa[a]<<","<<YPa[a] << endl;
     }
   
-  MaxDim  = 1700;
+  MaxDim  = 1500;
+  //nbin = MaxDim/10;
   sprintf(histname,"");       
   XYPads = new TH2F ("XYPads",";X [um];Y [um]",nbin,0.,MaxDim,nbin, 0.,MaxDim);
   
@@ -279,27 +312,30 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
 	       inputFile2 >> x_true[res] >>y_true[res] >> x_rec[res]  >> y_rec[res];
 
 
-	       // rotation
-	       
-	       xtr = (x_true[res]-860)*cos (Rangle)-(y_true[res]-855)*sin ( Rangle);
-	       ytr = (x_true[res]-860)*sin( Rangle)+(y_true[res]-855)*cos( Rangle);
-	       xrr = (x_rec[res]-860)*cos (Rangle)-(y_rec[res]-855)*sin ( Rangle);
-	       yrr = (x_rec[res]-860)*sin( Rangle)+(y_rec[res]-855)*cos( Rangle);
+	       // rotation of correction matrix
+	      XCent = (XPa[Xp2]+XPa[Xm1])/2;
+   			YCent = (YPa[Yp2]+YPa[Ym1])/2;
 
-	       x_true[res] = xtr+860;
-	       y_true[res] = ytr+855;
-	       x_rec[res]  = xrr+860;
-	       y_rec[res] = yrr+855;
+    
+	       xtr = (x_true[res]-XCent)*cos (Rangle)-(y_true[res]-YCent)*sin ( Rangle);
+	       ytr = (x_true[res]-XCent)*sin( Rangle)+(y_true[res]-YCent)*cos( Rangle);
+	       xrr = (x_rec[res]-XCent)*cos (Rangle)-(y_rec[res]-YCent)*sin ( Rangle);
+	       yrr = (x_rec[res]-XCent)*sin( Rangle)+(y_rec[res]-YCent)*cos( Rangle);
+
+	       x_true[res] = xtr+XCent;
+	       y_true[res] = ytr+YCent;
+	       x_rec[res]  = xrr+XCent;
+	       y_rec[res] = yrr+YCent;
 	       
 	       
 	       
-	       
+	       //
 	       DataCorPointInside[res] = 0;
 	       
 	       if (y_true[res]>YPa[Xm1]+Distance_Axis && y_true[res]<YPa[Xp2]-Distance_Axis && x_true[res] > XPa[Xm1]+Distance_Axis && x_true[res] <XPa[Xp2]-Distance_Axis)
 		 DataCorPointInside[res] = 1;
 	      
-	       res++;
+	       res++; // !!!! crea un array di dimensione res (se supera npos problemi)
 
 	       
 	     }	 	   	 
@@ -377,7 +413,7 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
 	      
 	}
 
- XLaser = *XPos;
+ 	 XLaser = *XPos;
    YLaser = *YPos;
    XCent = (XPa[Xp2]+XPa[Xm1])/2;
    YCent = (YPa[Yp2]+YPa[Ym1])/2;
@@ -603,8 +639,6 @@ void RSD2_Digitizer_Cross13::SlaveTerminate()
    // on each slave server.
 
   //      dif = 0;
-
-  cout << " here 2" << endl;
    for (int b=0;b<*npos;b++)
      {
        if ( HXPosRec[b]->GetEntries()>200) // At least 20 entries to perform a fit
@@ -664,7 +698,6 @@ void RSD2_Digitizer_Cross13::SlaveTerminate()
    gr1 = new TGraph(*npos,XRecArray,YRecArray);
    //  gr1 = new TGraph(*npos,XTrueArray,YTrueArray);
    
-   cout << " here 3" << endl;
 }
 
 void RSD2_Digitizer_Cross13::Terminate()
