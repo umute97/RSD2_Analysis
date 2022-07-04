@@ -1,11 +1,22 @@
 Max_number_channels 18
 Run 240
 StartingTrig 0
+MaxEventPerPoint 10
+SkipPos  2
+Nchannel  16
+MaxEvent  -1
+ana /home/daq/hdd8TB/RSD2/raw/croci450-RSD2_Run22_x_0_1100_y_0_700_100waveforms_240V_10umstep_49.5pc_W3.root
+nmedia 1
+Run -1
+
+Max_number_channels 18
+Run 240
+StartingTrig 0
 MaxEventPerPoint 50
 SkipPos  1
-Nchannel  5
+Nchannel  16
 MaxEvent  -1
-ana /home/daq/hdd8TB/RSD2/raw/croci1.3-RSD2_Run21_x_0_1500_y_0_1500_100waveforms_225V_20umstep_49.5pc_W3_5ActCh.root
+ana /home/daq/hdd8TB/RSD2/raw/croci450-RSD2_Run22_x_0_1100_y_0_700_100waveforms_175V_10umstep_49.5pc_W3.root
 nmedia 1
 Run -1
 

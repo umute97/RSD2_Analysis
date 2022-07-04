@@ -39,7 +39,7 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
    TString option = GetOption();
 
    //Sets the Multithread environment
-  
+
   if(enable_MT){
    ROOT::EnableThreadSafety();
     ROOT::EnableImplicitMT(8);
@@ -740,7 +740,7 @@ void RSD2_Digitizer_Cross13::Terminate()
   pt12->SetTextColor(kRed);
   pt12->Draw();
 
- c1->cd(3);
+ 	c1->cd(3);
   XYPads->Draw();
   gr1->SetMarkerSize(0.2);
   gr1->SetMarkerStyle(107);
@@ -751,7 +751,6 @@ void RSD2_Digitizer_Cross13::Terminate()
   pt13->AddText("Reconstructed Positions");
   pt13->SetTextColor(kRed);
   pt13->Draw();
-
 
   sprintf(histname,"C4 Signal");
   c4 = new TCanvas("c4",histname,800,800);
@@ -784,7 +783,7 @@ void RSD2_Digitizer_Cross13::Terminate()
 
   
   
-  c1->cd(4); 
+  c1->cd(4);
   XYPads->Draw();
   for (Int_t cc=0; cc< nposold; cc++)
     {
@@ -944,5 +943,14 @@ void RSD2_Digitizer_Cross13::Terminate()
       }
 
     }
+
+      if(save_plots){
+      	c1->SaveAs("W3/c1.pdf");
+      	c2->SaveAs("W3/c2.pdf");
+      	c3->SaveAs("W3/c3.pdf");
+      	c4->SaveAs("W3/c4.pdf");
+      	c5->SaveAs("W3/c5.pdf");
+      	c6->SaveAs("W3/c6.pdf");
+      }
   
 }
