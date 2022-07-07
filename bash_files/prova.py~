@@ -1,0 +1,7 @@
+import os
+
+with open("../Input_Folder_Digitizer_wfm.txt","open"):
+    if "MaxEventPerPoint" in line:
+        print(line)
+        break
+print("all done")

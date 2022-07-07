@@ -46,20 +46,20 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
       = 12 show correction Data without using it;
    */
 
-   Correction =12;
+   Correction =10;
  
    ExpCor = 2; // 
 
    kxfactor = 0.84; // 0.8
    kyfactor = 0.84; 
-   Distance_Axis = Xarmwidth+10;
+   Distance_Axis = Xarmwidth+30;
    Radius = 20;
    UseWeightedMean = 0;
    UseArea = 0;
    UseRotation = 0;
    Rangle = 0* PI / 180.0;  // angle of rotation of training data
 
-   datataking = 1; // 1 = new data taking
+   datataking = 2; // 1 = new data taking //2 = W3 datataking
 
    AScale = 1; //0./42. ;// gain X/66; 35, 53,66
    NScale = 1.2;
@@ -135,29 +135,71 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
        DCTimeLow = 30;
        DCTimeHigh = 50;
      }
+
+   else if (datataking ==2)
+     {
+
+   // channels:
+   //   DC = 0
+   //   12-14-4
+   //  1-3-9
+   //    XOffset = 170;
+   //  YOffset = 120;
        
-   nbin = (MaxDim-MinDim)/5;
-   TPx1 = MinDim;
-   TPx2 = MinDim+300;
-   TPy1 = MaxDim;
-   TPy2 = MaxDim+100;
+       dcchannel = 0;
+       Xm1 = 10;
+       Xm2 = 5;
+       Xp1 = 13;
+       Xp2 = 2;
+       
+       Ym1 = 10;
+       Ym2 = 13;
+       Yp1 = 5;
+       Yp2 = 2;
+
+      
+       XOffset = 0;
+       YOffset = 0; //Nbox = 1 80
+
+       XPa[Xm1] = 465;
+       XPa[Xm2] = 480;
+       XPa[Xp1] = 935;
+       XPa[Xp2] = 925;
+       YPa[Ym1] = 95;
+       YPa[Ym2] = 75;
+       YPa[Yp1] = 545;
+       YPa[Yp2] = 525;
+
+       TDelay[12] = 0.409;
+       TDelay[14] = 0.388;
+       
+       MaxDim  = 1100;
+       MinDim  = 0;
+       
+
+       DCTimeLow = 30;
+       DCTimeHigh = 50;
+     }
+       
+  nbin = (MaxDim-MinDim)/5;
+  TPx1 = MinDim;
+  TPx2 = MinDim+300;
+  TPy1 = MaxDim;
+  TPy2 = MaxDim+100;
    
 
   for(a=0;a<15;a++)
     {
-      if (a ==Xm1 || a == Xm2 || a ==Xp1 || a ==Xp2 )
-	{
-	  XPa[a] +=XOffset;
-	  YPa[a] +=YOffset;
-	  
-	  cout << "Pad " << a << " is in " << XPa[a]<<","<<YPa[a] << endl;
-	}
+      if (a ==Xm1 || a == Xm2 || a ==Xp1 || a ==Xp2){
+	     XPa[a] +=XOffset;
+	     YPa[a] +=YOffset;
+	     cout << "Pad " << a << " is in (" << XPa[a]<<", "<<YPa[a] << ")" << endl;
+     }
     }
-  
      
   sprintf(Filedatacorr,"Digitizer/Analysis_root/Croci_450micron/Migration_Cor%3.2f_UseArea%d_UseMean%d_datataking%d_Cross45.txt", kxfactor, UseArea, UseWeightedMean,datataking); //Data
-    sprintf(Filetimecorr,"Digitizer/Analysis_root/Croci_450micron/Delay_Cor%3.2f_UseArea%d_UseMean%d_datataking%d_Cross45.txt", kxfactor, UseArea, UseWeightedMean,datataking); //Data
-   sprintf(FileSpicecorr,"LSPICE_correction/1node/ampcut0mV/table_crosses_0.75k_18.86fF.txt"); //best with 18.86
+  sprintf(Filetimecorr,"Digitizer/Analysis_root/Croci_450micron/Delay_Cor%3.2f_UseArea%d_UseMean%d_datataking%d_Cross45.txt", kxfactor, UseArea, UseWeightedMean,datataking); //Data
+  sprintf(FileSpicecorr,"LSPICE_correction/1node/ampcut0mV/table_crosses_0.75k_18.86fF.txt"); //best with 18.86
 
  
   //new
@@ -167,16 +209,16 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
   sprintf(histname,"W15, Laser shot Positions;X [um];Y [um]");       
   XYPos = new TH2F ("XYPos",histname,nbin,MinDim,MaxDim,nbin, MinDim,MaxDim);
 
-    sprintf(histname,"W15, Signal amplitude;X [um];Y [um]");       
-   XYSignal = new TH2F ("XYSignal",histname,nbin,MinDim,MaxDim,nbin, MinDim,MaxDim);
+  sprintf(histname,"W15, Signal amplitude;X [um];Y [um]");       
+  XYSignal = new TH2F ("XYSignal",histname,nbin,MinDim,MaxDim,nbin, MinDim,MaxDim);
 
-   sprintf(histname,"W15, Signal time;X [um];Y [um]");       
-   XYSignalTime = new TH2F ("XYSignalTime",histname,nbin,MinDim,MaxDim,nbin, MinDim,MaxDim);
+  sprintf(histname,"W15, Signal time;X [um];Y [um]");       
+  XYSignalTime = new TH2F ("XYSignalTime",histname,nbin,MinDim,MaxDim,nbin, MinDim,MaxDim);
 
-   sprintf(histname,"W15, Time;X [um];Y [um]");       
-   XYTimeArea = new TH2F ("XYTimeArea",histname,nbin,MinDim,MaxDim,nbin, MinDim,MaxDim);
-   sprintf(histname,"W15, Delay;X [um];Y [um]");       
-   XYDelay = new TH2F ("XYDelay",histname,MaxDim/20,MinDim,MaxDim,MaxDim/20, MinDim,MaxDim);
+  sprintf(histname,"W15, Time;X [um];Y [um]");       
+  XYTimeArea = new TH2F ("XYTimeArea",histname,nbin,MinDim,MaxDim,nbin, MinDim,MaxDim);
+  sprintf(histname,"W15, Delay;X [um];Y [um]");       
+  XYDelay = new TH2F ("XYDelay",histname,MaxDim/20,MinDim,MaxDim,MaxDim/20, MinDim,MaxDim);
 
    sprintf(histname,"W15, DC Area ;X [um];Y [um]");       
    XYDCArea = new TH2F ("XYDCArea",histname,nbin,MinDim,MaxDim,nbin, MinDim,MaxDim);

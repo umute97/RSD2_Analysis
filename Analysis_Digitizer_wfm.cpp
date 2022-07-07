@@ -36,8 +36,8 @@ int main()
 
   bool enable_MT = true;
   if(enable_MT){
-   ROOT::EnableThreadSafety();
-    ROOT::EnableImplicitMT(8);
+    ROOT::EnableThreadSafety();
+    ROOT::EnableImplicitMT(16);
     cout << "Multithread is enabled"<< endl;
   }
   //bool showFFT=false;  
