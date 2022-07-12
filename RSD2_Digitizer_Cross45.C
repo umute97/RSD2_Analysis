@@ -46,12 +46,12 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
       = 12 show correction Data without using it;
    */
 
-   Correction =10;
+   Correction =11;
  
    ExpCor = 2; // 
 
-   kxfactor = 0.84; // 0.8
-   kyfactor = 0.84; 
+   kxfactor = 1; //0.84; // 0.8
+   kyfactor = 1; //0.84; 
    Distance_Axis = Xarmwidth+30;
    Radius = 20;
    UseWeightedMean = 0;
@@ -197,8 +197,9 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
      }
     }
      
-  sprintf(Filedatacorr,"Digitizer/Analysis_root/Croci_450micron/Migration_Cor%3.2f_UseArea%d_UseMean%d_datataking%d_Cross45.txt", kxfactor, UseArea, UseWeightedMean,datataking); //Data
-  sprintf(Filetimecorr,"Digitizer/Analysis_root/Croci_450micron/Delay_Cor%3.2f_UseArea%d_UseMean%d_datataking%d_Cross45.txt", kxfactor, UseArea, UseWeightedMean,datataking); //Data
+  //sprintf(Filedatacorr,"Digitizer/Analysis_root/Croci_450micron/Migration_Cor%3.2f_UseArea%d_UseMean%d_datataking%d_Cross45.txt", kxfactor, UseArea, UseWeightedMean,datataking); //Data
+  sprintf(Filedatacorr,"Migration_Cor%3.2f_UseArea%d_UseMean%d_datataking%d_Cross45.txt", kxfactor, UseArea, UseWeightedMean,datataking); //Data
+  sprintf(Filetimecorr,"Delay_Cor%3.2f_UseArea%d_UseMean%d_datataking%d_Cross45.txt", kxfactor, UseArea, UseWeightedMean,datataking); //Data
   sprintf(FileSpicecorr,"LSPICE_correction/1node/ampcut0mV/table_crosses_0.75k_18.86fF.txt"); //best with 18.86
 
  
