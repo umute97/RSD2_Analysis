@@ -42,7 +42,7 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
 
   if(enable_MT){
    ROOT::EnableThreadSafety();
-    ROOT::EnableImplicitMT(8);
+    ROOT::EnableImplicitMT();
     cout << "Multithread is enabled"<< endl;
   }
    
@@ -78,8 +78,8 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
    AScale = 1;// 10./63. ;// gain X/66; 35, 53,66 //
    NScale = 1;
 
-   TPx1 = 100; //dove finisce il (titolo forse)
-   TPx2 = 1000;
+   TPx1 = 1500; //dove finisce il (titolo forse)
+   TPx2 = 1500;
    TPy1 = 1750;
    TPy2 = 1950;
 
@@ -166,8 +166,8 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
        YOffset = 205;
 
      }
-   sprintf(Filedatacorr,"W3/Croci1300micron/Migration_Cor%3.2f_UseArea%d_Mean%d_Rotation%d_datataking%d_Cross13.txt", kfactor, UseArea, UseWeightedMean, UseRotation,datataking); //Data
-   sprintf(NormFiledatacorr,"Digitizer/Analysis_root/Croci_1300micron/Norm_Migration_Cor%3.2f_Cross13.txt", kfactor); //Data
+   sprintf(Filedatacorr,"Migration_Cor%3.2f_UseArea%d_Mean%d_Rotation%d_datataking%d_Cross13.txt", kfactor, UseArea, UseWeightedMean, UseRotation,datataking); //Data
+   sprintf(NormFiledatacorr,"Norm_Migration_Cor%3.2f_Cross13.txt", kfactor); //Data
    sprintf(FileSpicecorr,"LSPICE_correction/1node/ampcut0mV/table_crosses_0.75k_18.86fF.txt"); //best with 18.86
    sprintf(FileSpicecorr,"LSPICE_correction/3node/ampcut0mV/table_crosses_3.0k_2.26fF.txt"); //best with 2.26
    // sprintf(FileSpicecorr,"LSPICE_correction/1node/ampcut0mV/table_crosses_3.0k_1.29fF.txt"); //best with 1.29
@@ -252,98 +252,79 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
      {
        
        ifstream inputFile2 (FileSpicecorr);
-       if(!inputFile2)
-	 {
-	   cout << "Error: could not find the LTSPICE file" << endl;
-	 }
+       if(!inputFile2)  cout << "Error: could not find the LTSPICE file" << endl;
        else
-	 {
-	   res = 0;
-	   cout << "LTSpice file = " << FileSpicecorr << endl;
-	   //   inputFile2 >> pippo >> pippo >> pippo  >> pippo;
+	      {
+	      res = 0;
+	      cout << "LTSpice file = " << FileSpicecorr << endl;
+	      //   inputFile2 >> pippo >> pippo >> pippo  >> pippo;
 	   
-	   while(1) //upper limit for safety
+	      while(1) //upper limit for safety
 	     //	      while(1)
-	     {		  
-	       if(inputFile2.eof() || res>4000)
-		 break;		 	   
-	       inputFile2 >> x_true[res] >>y_true[res] >>	x_rec[res]  >> y_rec[res];
-	       DataCorPointInside[res] = 1;
-	       res++;
-	     }
+	        {		  
+	        if(inputFile2.eof() || res>4000)
+		      break;		 	   
+	        inputFile2 >> x_true[res] >>y_true[res] >>	x_rec[res]  >> y_rec[res];
+	        DataCorPointInside[res] = 1;
+	        res++;
+	      }
 	   
-	   res--;
-	   sim_point = res;
-	   cout << " LTSPICE file with " << res << " points" << endl;
-	   
-	   
-	   Dx = 1300;
-	   Dy = 1300;
-	   Yo = YPa[Ym1];
-	   Xo = XPa[Xm1];	       
+	    res--;
+	    sim_point = res;
+	    cout << " LTSPICE file with " << res << " points" << endl;
 	   
 	   
-	   for (cc = 0; cc<sim_point;cc++) // LTSpice corr.  
+	    Dx = 1300;
+	    Dy = 1300;
+	    Yo = YPa[Ym1];
+	    Xo = XPa[Xm1];	       
+	   
+	   
+	    for (cc = 0; cc<sim_point;cc++) // LTSpice corr.  
 	     {
 	       x_true[cc]=(x_true[cc]+1)/2*Dx+Xo;
 	       y_true[cc]=(y_true[cc]+1)/2*Dy+Yo;
 	       x_rec[cc]=(x_rec[cc]+1)/2*Dx+Xo;
 	       y_rec[cc]=(y_rec[cc]+1)/2*Dy+Yo;			
 	       //  cout<< "Spice correction file: " <<  x_true[cc] << " " << y_rec[cc] << endl;		       
-	     }
-
-	   
-	   
-	 }
-
-     }
+	     } 
+	  }
+  }
    else if (Correction== 11 || Correction== 12 )
      {
        ifstream inputFile2 (Filedatacorr);
-       if(!inputFile2)
-	 {
-	   cout << "Error: could not find the Data file = "  << Filedatacorr  << endl;
-	 }
-       else
-	 {
-	   res = 0;
-	   cout << "Correction file = " << Filedatacorr << endl;
-	   //   inputFile2 >> pippo >> pippo >> pippo  >> pippo;
+       if(!inputFile2) cout << "Error: could not find the Data file = "  << Filedatacorr  << endl;
+       else{
+	      res = 0;
+	      cout << "Correction file = " << Filedatacorr << endl;
+	      //   inputFile2 >> pippo >> pippo >> pippo  >> pippo;
 	   
-	   while(1) //upper limit for safety
-	     //	      while(1)
-	     {		  
-	       if(inputFile2.eof() || res>2000)
-		 break;		 	   
-	       inputFile2 >> x_true[res] >>y_true[res] >> x_rec[res]  >> y_rec[res];
+	      while(1){ //upper limit for safety
+	      		  
+	        if(inputFile2.eof() || res>10000)
+		      break;		 	   
+	        inputFile2 >> x_true[res] >>y_true[res] >> x_rec[res]  >> y_rec[res];
 
+	        // rotation of correction matrix
+	        XCent = (XPa[Xp2]+XPa[Xm1])/2;
+   			  YCent = (YPa[Yp2]+YPa[Ym1])/2;
 
-	       // rotation of correction matrix
-	      XCent = (XPa[Xp2]+XPa[Xm1])/2;
-   			YCent = (YPa[Yp2]+YPa[Ym1])/2;
+	        xtr = (x_true[res]-XCent)*cos (Rangle)-(y_true[res]-YCent)*sin( Rangle);
+	        ytr = (x_true[res]-XCent)*sin( Rangle)+(y_true[res]-YCent)*cos( Rangle);
+	        xrr = (x_rec[res]-XCent)*cos (Rangle)-(y_rec[res]-YCent)*sin ( Rangle);
+	        yrr = (x_rec[res]-XCent)*sin( Rangle)+(y_rec[res]-YCent)*cos( Rangle);
 
-    
-	       xtr = (x_true[res]-XCent)*cos (Rangle)-(y_true[res]-YCent)*sin ( Rangle);
-	       ytr = (x_true[res]-XCent)*sin( Rangle)+(y_true[res]-YCent)*cos( Rangle);
-	       xrr = (x_rec[res]-XCent)*cos (Rangle)-(y_rec[res]-YCent)*sin ( Rangle);
-	       yrr = (x_rec[res]-XCent)*sin( Rangle)+(y_rec[res]-YCent)*cos( Rangle);
-
-	       x_true[res] = xtr+XCent;
-	       y_true[res] = ytr+YCent;
-	       x_rec[res]  = xrr+XCent;
-	       y_rec[res] = yrr+YCent;
+	        x_true[res] = xtr+XCent;
+	        y_true[res] = ytr+YCent;
+	        x_rec[res]  = xrr+XCent;
+	        y_rec[res] = yrr+YCent;
 	       
+	        DataCorPointInside[res] = 0;
 	       
-	       
-	       //
-	       DataCorPointInside[res] = 0;
-	       
-	       if (y_true[res]>YPa[Xm1]+Distance_Axis && y_true[res]<YPa[Xp2]-Distance_Axis && x_true[res] > XPa[Xm1]+Distance_Axis && x_true[res] <XPa[Xp2]-Distance_Axis)
-		 DataCorPointInside[res] = 1;
+	        if (y_true[res]>YPa[Xm1]+Distance_Axis && y_true[res]<YPa[Xp2]-Distance_Axis && x_true[res] > XPa[Xm1]+Distance_Axis && x_true[res] <XPa[Xp2]-Distance_Axis)
+		        DataCorPointInside[res] = 1;
 	      
-	       res++; // !!!! crea un array di dimensione res (se supera npos problemi)
-
-	       
+	        res++; // !!!! crea un array di dimensione res (se supera npos problemi)	       
 	     }	 	   	 
 	   
 	   res--;
@@ -352,7 +333,7 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
 	   
 	 }
 
-     }
+  }
 
    
 }
