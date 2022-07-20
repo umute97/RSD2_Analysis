@@ -34,9 +34,8 @@ public :
 Double_t param, result, Rangle;
 Double_t xtr, ytr,xrr,yrr;
 
-   const bool enable_MT = true;
-   const bool save_plots = false;
-   
+
+
    TCanvas *c1;
    TCanvas *c2;
    TCanvas *c3;
@@ -44,12 +43,21 @@ Double_t xtr, ytr,xrr,yrr;
    TCanvas *c5;
    TCanvas *c6;
    TCanvas *c7;
+   TCanvas *c8;
    
    TH2F *XYPads;
    TH2F *XYPos;
    TH2F *XYSignal;
    TH2F *XYXOffset;
    TH2F *XYRec;
+   TH2F *XYDCArea;
+   TH2F *XYACArea;
+
+   TH2F *XYSignalTime;
+   TH2F *XYTimeArea;
+   TH2F *XYDelay;
+   TH1F *HTimeRec[8000];
+   TH1F *HTime;
 
    TH1F *HXPosRec[8000];
    TH1F *HYPosRec[8000];
@@ -61,6 +69,8 @@ Double_t xtr, ytr,xrr,yrr;
    TH1F *HYAllPosRec;
 
    TH1F *HNumPoint;
+
+   TF1 *exp2;
 
    
    TH1F *HXOffset;
@@ -76,31 +86,44 @@ Double_t xtr, ytr,xrr,yrr;
    
    Double_t XRecArray[8000];
    Double_t YRecArray[8000];
+   Double_t TRecArray[8000];
 
    Double_t XTrueArray[8000];
    Double_t YTrueArray[8000];
+
+   Double_t ASum;
+   Double_t TDelay[18];
+   Double_t TChannel[18];
+   Double_t Tcor3,Tcor4, Tcor5, Tcor6, TTrigger, EventTime; 
 
    int XOffset = 0;
    int YOffset = 0;
    int TPx1,TPx2,TPy1,TPy2;
    int datataking = 0;
    int dcchannel = 0;
+   int alow, ahigh;
+   
 
    Double_t MaxDim = 0;
    Double_t AScale = 1.;
    Double_t NScale = 1;
    Double_t kfactor = 1;
    Double_t SignalTotal = 1;
-   Double_t Signal[5];
+   Double_t AllSignalTotal = 1;
+   Double_t Signal[8];
 
    Double_t XLaser = 0;
    Double_t YLaser= 0;
-   Double_t   Distance_Axis;
+   Double_t   Distance_Axis_cor;
+   Double_t   Distance_Axis_data;
    Double_t   Noise;
+   Double_t   RMSNoise = 4.439;
+   Double_t   ADCmV = 0.247;
+   Double_t DCTimeLow, DCTimeHigh;
+ 
    
-   
- int XPa[5] = {1300,0,0,0,1300};
- int YPa[5] = {1300, 1300,0, 0, 0};
+   int XPa[8]; // = {0,0,1300,0,0,0,1300};
+   int YPa[8]; // = {0,0, 1300, 1300,0, 0, 0};
 //int XPa[5] = {0,1420, 120,1420,120};
 // int YPa[5] = {0,1420, 1420, 120, 120};
    int UseArea = 0;
@@ -109,7 +132,7 @@ Double_t xtr, ytr,xrr,yrr;
    int SquareCut;
 
 
-   Double_t x_true[8000], y_true[8000], x_rec[8000], y_rec[8000];
+   Double_t x_true[8000], y_true[8000], x_rec[8000], y_rec[8000], t_rec[8000];
    Double_t dif, dif_min, cor_x,cor_y, cor_nx,cor_d,cor_ny, dif_minx, dif_miny, Radius, Radius_r, XCent, YCent;
    Int_t Xm1, Xm2, Xp1, Xp2, Ym1, Ym2, Yp1, Yp2;
    Int_t grid = 15;
@@ -126,10 +149,16 @@ Double_t xtr, ytr,xrr,yrr;
    
    TArrow *ar[8000];
    TArrow *ar_spice[8000];
+
+   TProfile *PShapeDCCh;
+   TProfile *PShapeXm1;
+   TProfile *PShapeXm2;
+   TProfile *PShapeXp1;
+   TProfile *PShapeXp2;
    
 
 
-   Double_t XNum, YNum, XYDen;
+   Double_t XNum, YNum, TNum, XYDen, TDen;
    Double_t Yarmlenght = 600;
    Double_t Xarmwidth = 10;
 
@@ -143,7 +172,9 @@ Double_t xtr, ytr,xrr,yrr;
    Int_t nposold=0;
    Int_t NBox=0;
    Int_t ChanRec=0;
+   Int_t NChMax;
 
+   Double_t AMax;
    Double_t weight;
    
 

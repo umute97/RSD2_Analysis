@@ -38,13 +38,7 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
 
    TString option = GetOption();
 
-   //Sets the Multithread environment
 
-  if(enable_MT){
-   ROOT::EnableThreadSafety();
-    ROOT::EnableImplicitMT();
-    cout << "Multithread is enabled"<< endl;
-  }
    
    /* declaring normal distribution object 'distN' and initializing its mean and standard deviation fields. */
    /* Mean and standard deviation are distribution parameters of Normal distribution. Here, we have used mean=5, and standard deviation=2. You can take mean and standard deviation as per your choice */
@@ -61,111 +55,169 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
 
    Correction = 11;
 
-   datataking = 2; // = 0 old;  == 1 new data taking // == 2 W3 data taking
-   cout << "datataking: " << datataking << endl;
+   datataking = 4;
+   /*
+    = 0 old run  5, 6,7,8;
+    ==1 for  10=< run =<13;  ==2 for  14=< run =<16;   new data taking
+    == 2
+   == 3 for timing
+   */
    
-   kfactor = 1.0;
-
-   Distance_Axis = 30;
+   kfactor = 0.98;
+   
+   Distance_Axis_cor = 30;
+   Distance_Axis_data = 30;
    UseArea = 0;
    UseWeightedMean = 0;
    UseRotation = 0;
    SquareCut = 0; // 0 no cut, ==10 rotated cut, 1 +-250; 2 =250- 500; 3 = 500-750;
-   Rangle =  0. * PI/180.; //180.0* PI / 180.0;  // angle of rotation of training data
-   
-   Radius = 30; //30; //punti inclusi della migration matrix
+   Rangle = 0* PI / 180.0;  // angle of rotation of training data
+   RMSNoise = 4.439 ; // In ADC count
+   Radius = 30; //30;
 
-   AScale = 1;// 10./63. ;// gain X/66; 35, 53,66 //
-   NScale = 1;
-
-   TPx1 = 1500; //dove finisce il (titolo forse)
-   TPx2 = 1500;
+   AScale = 1;// 10./63. ;// gain X/66; 35, 53,66
+   NScale = 1.2;
+   TPx1 = 100;
+   TPx2 = 1000;
    TPy1 = 1750;
    TPy2 = 1950;
 
-   if (datataking == 2)
-     {
-       XOffset = 125;
-       YOffset = 120;
-       
-       dcchannel = 0;
-       XPa[0] = 0;
-       XPa[1] = 1300;
-       XPa[2] = 0;
-       XPa[3] = 1300;
-       XPa[4] = 0;
-       
-       YPa[0] = 0;
-       YPa[1] = 1300;
-       YPa[2] = 1300;
-       YPa[3] = 0;
-       YPa[4] = 0;
-
-
-       //       21
-       //	43
-
-       Xm1 = 4;
-       Xm2 = 2;
-       Xp1 = 3;
-       Xp2 = 1;
-       Ym1 = 4;
-       Ym2 = 3;
-       Yp1 = 2;
-       Yp2 = 1;
-
-   }
-   else if (datataking == 1)
-     {
-       XOffset = 140;
-       YOffset = 100;
-       
-       dcchannel = 0;
-       XPa[0] = 0;
-       XPa[1] = 1300;
-       XPa[2] = 0;
-       XPa[3] = 1300;
-       XPa[4] = 0;
-       
-       YPa[0] = 0;
-       YPa[1] = 1300;
-       YPa[2] = 1300;
-       YPa[3] = 0;
-       YPa[4] = 0;
-
-
-       //       21
-       //	43
-
-       Xm1 = 4;
-       Xm2 = 2;
-       Xp1 = 3;
-       Xp2 = 1;
-       Ym1 = 4;
-       Ym2 = 3;
-       Yp1 = 2;
-       Yp2 = 1;
-
+   alow = 0;
+   ahigh = 5;
+   
+   if (datataking == 0){
+    dcchannel = 2;
+    DCTimeLow = 25;
+    DCTimeHigh = 40;// 18;
+    
+    Xm1 = 3;
+    Xm2 = 1;
+    Xp1 = 4;
+    Xp2 = 0;
+    Ym1 = 3;
+    Ym2 = 4;
+    Yp1 = 1;
+    Yp2 = 0;
+    XOffset = 210;
+    YOffset = 205;
+    XPa[0] = 1300;
+    XPa[1] = 0;
+    XPa[2] = 0;
+    XPa[3] = 0;
+    XPa[4] = 1300;
+    YPa[0] = 1300;
+    YPa[1] = 1300;
+    YPa[2] = 0;
+    YPa[3] = 0;
+    YPa[4] = 0; 
+    }
+    else if (datataking == 1 || datataking == 2){
+      if (datataking ==1){
+	     XOffset = 140;
+	     YOffset = 90;
+	     XPa[1] = 1320;
+	     XPa[2] = 20;
+	     XPa[3] = 1300;
+	     XPa[4] = 0;
 	 
-     }
-   else
-     {
-       //       10
-       //	34
-       dcchannel = 2;      
-       Xm1 = 3;
-       Xm2 = 1;
-       Xp1 = 4;
-       Xp2 = 0;
-       Ym1 = 3;
-       Ym2 = 4;
-       Yp1 = 1;
-       Yp2 = 0;
+	     YPa[0] = 0;
+	     YPa[1] = 1280;
+	     YPa[2] = 1300;
+	     YPa[3] = -20;
+	     YPa[4] = 0;
+	     DCTimeLow  = 30;
+	     DCTimeHigh = 40;
+       }
+      else{
+	     DCTimeLow  = 30;
+	     DCTimeHigh = 60;
+	     XOffset = 90;
+	     YOffset = 120;	   
+	     XPa[1] = 1300;
+	     XPa[2] = 0;
+	     XPa[3] = 1300;
+	     XPa[4] = 0;
 
-       XOffset = 210;
-       YOffset = 205;
+	     YPa[0] = 0;
+	     YPa[1] = 1300;
+	     YPa[2] = 1300;
+	     YPa[3] = 0;
+	     YPa[4] = 0;
+	     }
+      dcchannel = 0;
+      XPa[0] = 0;
+      Xm1 = 4;
+      Xm2 = 2;
+      Xp1 = 3;
+      Xp2 = 1;
+      Ym1 = 4;
+      Ym2 = 3;
+      Yp1 = 2;
+      Yp2 = 1;	 
+    }
 
+    else if ( datataking == 3){
+
+      XOffset = 140;
+      YOffset = 90;
+      XPa[3] = 1320;
+      XPa[4] = 20;
+      XPa[5] = 1300;
+      XPa[6] = 0;
+
+      YPa[3] = 1280;
+      YPa[4] = 1300;
+      YPa[5] = -20;
+      YPa[6] = 0;
+      DCTimeLow  = 30;
+      DCTimeHigh = 40;
+      dcchannel = 2;
+      XPa[0] = 0;
+
+      Xm1 = 6;
+      Xm2 = 4;
+      Xp1 = 5;
+      Xp2 = 3;
+      Ym1 = 6;
+      Ym2 = 5;
+      Yp1 = 4;
+      Yp2 = 3;
+      alow = 2;
+      ahigh = 8;
+
+      TDelay[3] = 0.488;
+      TDelay[4] = 0.632;
+      TDelay[5] = 0.068;
+      TDelay[6] = 0.6421;
      }
+   
+    else if (datataking == 4){
+      XOffset = 125;
+      YOffset = 120;
+       
+      dcchannel = 0;
+      XPa[0] = 0;
+      XPa[1] = 1300;
+      XPa[2] = 0;
+      XPa[3] = 1300;
+      XPa[4] = 0;
+       
+      YPa[0] = 0;
+      YPa[1] = 1300;
+      YPa[2] = 1300;
+      YPa[3] = 0;
+      YPa[4] = 0;
+
+      Xm1 = 4;
+      Xm2 = 2;
+      Xp1 = 3;
+      Xp2 = 1;
+      Ym1 = 4;
+      Ym2 = 3;
+      Yp1 = 2;
+      Yp2 = 1;
+   }
+     
    sprintf(Filedatacorr,"Migration_Cor%3.2f_UseArea%d_Mean%d_Rotation%d_datataking%d_Cross13.txt", kfactor, UseArea, UseWeightedMean, UseRotation,datataking); //Data
    sprintf(NormFiledatacorr,"Norm_Migration_Cor%3.2f_Cross13.txt", kfactor); //Data
    sprintf(FileSpicecorr,"LSPICE_correction/1node/ampcut0mV/table_crosses_0.75k_18.86fF.txt"); //best with 18.86
@@ -177,165 +229,191 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
 
    // scaling the reconstruction method 
 
-   
-  for(a=0;a<5;a++)
-    {
-      if (a!= dcchannel)
-	{
-	  XPa[a] = XPa[a]+XOffset;
-	  YPa[a] = YPa[a]+YOffset;
-	}
+
+  for(a=alow;a<ahigh;a++){
+    if (a!= dcchannel){
+	    XPa[a] = XPa[a]+XOffset;
+	    YPa[a] = YPa[a]+YOffset;
+	  }
       
-      cout << "Pad " << a << " is in " << XPa[a]<<","<<YPa[a] << endl;
-    }
-  
-  MaxDim  = 1500;
-  //nbin = MaxDim/10;
+    cout << "Pad " << a << " is in " << XPa[a]<<","<<YPa[a] << endl;
+  }
+
+  MaxDim  = 1700;
   sprintf(histname,"");       
   XYPads = new TH2F ("XYPads",";X [um];Y [um]",nbin,0.,MaxDim,nbin, 0.,MaxDim);
   
-   sprintf(histname,"W15, Laser shot Positions;X [um];Y [um]");       
-   XYPos = new TH2F ("XYPos",histname,nbin,0.,MaxDim,nbin, 0.,MaxDim);
+  sprintf(histname,"W15, Laser shot Positions;X [um];Y [um]");       
+  XYPos = new TH2F ("XYPos",histname,nbin,0.,MaxDim,nbin, 0.,MaxDim);
 
-   sprintf(histname,"W15, Signal amplitude;X [um];Y [um]");       
-   XYSignal = new TH2F ("XYSig",histname,nbin,0.,MaxDim,nbin, 0.,MaxDim);
+  sprintf(histname,"W15, Signal amplitude;X [um];Y [um]");       
+  XYSignal = new TH2F ("XYSig",histname,nbin,0.,MaxDim,nbin, 0.,MaxDim);
 
-   sprintf(histname,"W15,xmin-XLaser;X [um];Y [um]");       
-   XYXOffset = new TH2F ("XYXOffset",histname,nbin,0.,MaxDim,nbin, 0.,MaxDim);
+  sprintf(histname,"W15, DC Area ;X [um];Y [um]");       
+  XYDCArea = new TH2F ("XYDCArea",histname,50,0,MaxDim,50, 0,MaxDim);
+
+  sprintf(histname,"W15, AC Area ;X [um];Y [um]");       
+  XYACArea = new TH2F ("XYACArea",histname,50,0,MaxDim,50, 0,MaxDim);
+   
+  sprintf(histname,"W15,xmin-XLaser;X [um];Y [um]");       
+  XYXOffset = new TH2F ("XYXOffset",histname,nbin,0.,MaxDim,nbin, 0.,MaxDim);
+
+  sprintf(histname,"W15, Signal time;X [um];Y [um]; Delay + 1 [ns]");       
+  //   XYSignalTime = new TH2F ("XYSignalTime",histname,nbin,0,MaxDim,nbin, 0,MaxDim);
+  XYSignalTime = new TH2F ("XYSignalTime",histname,nbin,0,MaxDim,nbin, 0,MaxDim);
+   
+  sprintf(histname,"W15, Time;X [um];Y [um]; Trigger - Event Time + 1 [ns]");       
+  XYTimeArea = new TH2F ("XYTimeArea",histname,MaxDim/10,0,MaxDim,MaxDim/10, 0,MaxDim);
+  sprintf(histname,"W15, Delay;X [um];Y [um]; Delay + 1 [ns]");       
+  XYDelay = new TH2F ("XYDelay",histname,MaxDim/50,0,MaxDim,MaxDim/50, 0,MaxDim);
 
    
-   sprintf(histname,"W15, Struc Rec Pposition");       
-   XYRec = new TH2F ("XYRec",histname,nbin,0.,MaxDim,nbin, 0.,MaxDim);
+  sprintf(histname,"W15, Struc Rec Pposition");       
+  XYRec = new TH2F ("XYRec",histname,nbin,0.,MaxDim,nbin, 0.,MaxDim);
 
-   for (int b=0;b<8000;b++)
-     {
-       sprintf(histname,"XPos%d ",b);       
-       HXPosRec[b] = new TH1F (histname,histname,MaxDim/2, 0,MaxDim);
-       sprintf(histname,"YPos%d ",b);       
-       HYPosRec[b] = new TH1F (histname,histname,MaxDim/2, 0,MaxDim);
-     }
+  sprintf(histname,"DC shape;Time [ns]; Amplitude [mV] ");       
+  PShapeDCCh = new TProfile("PShaperDCCh",histname, 300, 0, 60.);
 
 
-   sprintf(histname,"; X [um];Entries ");       
-   HXAllPosRec = new TH1F ("HXAllPosRec",histname,100, -200,200);
-   sprintf(histname,"; Y [um];Entries");       
-   HYAllPosRec = new TH1F ("HYAllPosRec",histname,100, -200,200);
-
-   sprintf(histname,"; X [um];Entries ");       
-   HXAllAbsPos = new TH1F ("HXallAbs",histname,100, 0,1600);
-   sprintf(histname,"; Y [um];Entries");       
-   HYAllAbsPos = new TH1F ("HYallAbs",histname,100, 0,1600);
-
-   sprintf(histname,"Offset (xmin-XLaser); X [um];Entries ");       
-   HXOffset = new TH1F ("HXOffset",histname,100, -250,250);
-   sprintf(histname,"Offset (ymin-YLaser); Y [um];Entries");       
-   HYOffset = new TH1F ("HYOffsetc",histname,100, -250,250);
-
-    sprintf(histname,"Sigma (xmin-XLaser); X [um];Entries ");       
-   HXSigma = new TH1F ("HXSigma",histname,100, -250,250);
-   sprintf(histname,"Sigma (ymin - Ylaser); Y [um];Entries");       
-   HYSigma = new TH1F ("HYSigma",histname,100, -250,250);
-
-   sprintf(histname,"; Signal Total [mV] ;Entries");       
-   HSignalTotal = new TH1F ("HSignalTotal",histname,100, 0, 350. );
-   sprintf(histname,"; DC Signal  [pWb] ;Entries");       
-   HDCSignal = new TH1F ("HDCSignal",histname,100, 0, 350. );
-
-   sprintf(histname,"; Shift  [um] ;Entries");       
-   HMigration = new TH1F ("HMigration",histname,100, 0, 350. );
-
-   sprintf(histname,"; Point ;Entries");       
-   HNumPoint = new TH1F ("HNumPoint",histname,50, 0, 50. );
-
+  sprintf(histname,"Xm1 shape;Time [ns]; Amplitude [mV] ");       
+  PShapeXm1 = new TProfile("PShaperXm1",histname, 100, 20, 50.);
+  sprintf(histname,"Xm2 shape;Time [ns]; Amplitude [mV] ");       
+  PShapeXm2 = new TProfile("PShaperXm2",histname, 100, 20, 50.);
+  sprintf(histname,"Xp1 shape;Time [ns]; Amplitude [mV] ");       
+  PShapeXp1 = new TProfile("PShaperXp1",histname, 100, 20, 50.);
+  sprintf(histname,"Xp2 shape;Time [ns]; Amplitude [mV] ");       
+  PShapeXp2 = new TProfile("PShaperXp2",histname, 100, 20, 50.);
    
-   if(Correction == 1 || Correction == 2 )
-     {
-       
-       ifstream inputFile2 (FileSpicecorr);
-       if(!inputFile2)  cout << "Error: could not find the LTSPICE file" << endl;
-       else
-	      {
-	      res = 0;
-	      cout << "LTSpice file = " << FileSpicecorr << endl;
-	      //   inputFile2 >> pippo >> pippo >> pippo  >> pippo;
-	   
-	      while(1) //upper limit for safety
-	     //	      while(1)
-	        {		  
-	        if(inputFile2.eof() || res>4000)
-		      break;		 	   
-	        inputFile2 >> x_true[res] >>y_true[res] >>	x_rec[res]  >> y_rec[res];
-	        DataCorPointInside[res] = 1;
-	        res++;
-	      }
-	   
-	    res--;
-	    sim_point = res;
-	    cout << " LTSPICE file with " << res << " points" << endl;
-	   
-	   
-	    Dx = 1300;
-	    Dy = 1300;
-	    Yo = YPa[Ym1];
-	    Xo = XPa[Xm1];	       
-	   
-	   
-	    for (cc = 0; cc<sim_point;cc++) // LTSpice corr.  
-	     {
-	       x_true[cc]=(x_true[cc]+1)/2*Dx+Xo;
-	       y_true[cc]=(y_true[cc]+1)/2*Dy+Yo;
-	       x_rec[cc]=(x_rec[cc]+1)/2*Dx+Xo;
-	       y_rec[cc]=(y_rec[cc]+1)/2*Dy+Yo;			
-	       //  cout<< "Spice correction file: " <<  x_true[cc] << " " << y_rec[cc] << endl;		       
-	     } 
-	  }
+
+  for (int b=0;b<8000;b++){
+    sprintf(histname,"XPos%d ",b);       
+    HXPosRec[b] = new TH1F (histname,histname,MaxDim/2, 0,MaxDim);
+    sprintf(histname,"YPos%d ",b);       
+    HYPosRec[b] = new TH1F (histname,histname,MaxDim/2, 0,MaxDim);
+    sprintf(histname,"Time%d; Time [ns]; Entries",b);       
+    HTimeRec[b] = new TH1F (histname,histname,400, -2.,2.);
   }
-   else if (Correction== 11 || Correction== 12 )
-     {
-       ifstream inputFile2 (Filedatacorr);
-       if(!inputFile2) cout << "Error: could not find the Data file = "  << Filedatacorr  << endl;
-       else{
-	      res = 0;
-	      cout << "Correction file = " << Filedatacorr << endl;
-	      //   inputFile2 >> pippo >> pippo >> pippo  >> pippo;
+
+  HTime = new TH1F ("HTime","HTime; Time [ns]; Entries",100, -0.5,0.5);
+   
+  sprintf(histname,"; X [um];Entries ");       
+  HXAllPosRec = new TH1F ("HXAllPosRec",histname,100, -200,200);
+  sprintf(histname,"; Y [um];Entries");       
+  HYAllPosRec = new TH1F ("HYAllPosRec",histname,100, -200,200);
+
+  sprintf(histname,"; X [um];Entries ");       
+  HXAllAbsPos = new TH1F ("HXallAbs",histname,100, 0,1600);
+  sprintf(histname,"; Y [um];Entries");       
+  HYAllAbsPos = new TH1F ("HYallAbs",histname,100, 0,1600);
+
+  sprintf(histname,"Offset (xmin-XLaser); X [um];Entries ");       
+  HXOffset = new TH1F ("HXOffset",histname,100, -250,250);
+  sprintf(histname,"Offset (ymin-YLaser); Y [um];Entries");       
+  HYOffset = new TH1F ("HYOffsetc",histname,100, -250,250);
+
+  sprintf(histname,"Sigma (xmin-XLaser); X [um];Entries ");       
+  HXSigma = new TH1F ("HXSigma",histname,100, -250,250);
+  sprintf(histname,"Sigma (ymin - Ylaser); Y [um];Entries");       
+  HYSigma = new TH1F ("HYSigma",histname,100, -250,250);
+
+  sprintf(histname,"; Signal Total [mV] ;Entries");       
+  HSignalTotal = new TH1F ("HSignalTotal",histname,100, 0, 350. );
+  sprintf(histname,"; DC Signal  [fC] ;Entries");       
+  HDCSignal = new TH1F ("HDCSignal",histname,100, 0, 50. );
+
+  sprintf(histname,"; Shift  [um] ;Entries");       
+  HMigration = new TH1F ("HMigration",histname,100, 0, 350. );
+
+  sprintf(histname,"; Point ;Entries");       
+  HNumPoint = new TH1F ("HNumPoint",histname,50, 0, 50. );
+
+   
+  if(Correction == 1 || Correction == 2 ){
+       
+    ifstream inputFile2 (FileSpicecorr);
+    if(!inputFile2)
+	   cout << "Error: could not find the LTSPICE file" << endl;
+    else{
+	   res = 0;
+	   cout << "LTSpice file = " << FileSpicecorr << endl;
+	   //   inputFile2 >> pippo >> pippo >> pippo  >> pippo;
+	   while(1){ //upper limit for safety		  
+	     if(inputFile2.eof() || res>8000) break;		 	   
+	     inputFile2 >> x_true[res] >>y_true[res] >>	x_rec[res]  >> y_rec[res] >> t_rec[res];
+	     DataCorPointInside[res] = 1;
+	     res++;
+	   }
+	   res--;
+	   sim_point = res;
+	   cout << " LTSPICE file with " << res << " points" << endl;
 	   
-	      while(1){ //upper limit for safety
-	      		  
-	        if(inputFile2.eof() || res>10000)
-		      break;		 	   
-	        inputFile2 >> x_true[res] >>y_true[res] >> x_rec[res]  >> y_rec[res];
+	   
+	   Dx = 1300;
+	   Dy = 1300;
+	   Yo = YPa[Ym1];
+	   Xo = XPa[Xm1];	       
+	   
+	   
+	   for (cc = 0; cc<sim_point;cc++){ // LTSpice corr.  
+	     x_true[cc]=(x_true[cc]+1)/2*Dx+Xo;
+	     y_true[cc]=(y_true[cc]+1)/2*Dy+Yo;
+	     x_rec[cc]=(x_rec[cc]+1)/2*Dx+Xo;
+	     y_rec[cc]=(y_rec[cc]+1)/2*Dy+Yo;			
+	   }
+	  }
 
-	        // rotation of correction matrix
-	        XCent = (XPa[Xp2]+XPa[Xm1])/2;
-   			  YCent = (YPa[Yp2]+YPa[Ym1])/2;
+  } // corr 1,2
 
-	        xtr = (x_true[res]-XCent)*cos (Rangle)-(y_true[res]-YCent)*sin( Rangle);
-	        ytr = (x_true[res]-XCent)*sin( Rangle)+(y_true[res]-YCent)*cos( Rangle);
-	        xrr = (x_rec[res]-XCent)*cos (Rangle)-(y_rec[res]-YCent)*sin ( Rangle);
-	        yrr = (x_rec[res]-XCent)*sin( Rangle)+(y_rec[res]-YCent)*cos( Rangle);
+  else if (Correction== 11 || Correction== 12 ){
+    ifstream inputFile2 (Filedatacorr);
+    if(!inputFile2)
+	   cout << "Error: could not find the Data file = "  << Filedatacorr  << endl;
+    else{
+	   res = 0;
+	   cout << "Correction file = " << Filedatacorr << endl;
+	   //   inputFile2 >> pippo >> pippo >> pippo  >> pippo;
+	   while(1){		  
+	     if(inputFile2.eof() || res>8000)
+		    break;		 	   
+	     inputFile2 >> x_true[res] >>y_true[res] >> x_rec[res]  >> y_rec[res] >> t_rec[res];
+	       // rcorrection matrix rotation
+	     if (Rangle !=0){
+		    xtr = (x_true[res]-(XPa[Xm1]+XPa[Xp2])/2.)*cos (Rangle)-(y_true[res]-(YPa[Ym1]+YPa[Yp2])/2)*sin ( Rangle);
+		    ytr = (x_true[res]-(XPa[Xm1]+XPa[Xp2])/2.)*sin( Rangle)+(y_true[res]-(YPa[Ym1]+YPa[Yp2])/2)*cos( Rangle);
+		  
+		    xrr = (x_rec[res]-(XPa[Xm1]+XPa[Xp2])/2.)*cos (Rangle)-(y_rec[res]-(YPa[Ym1]+YPa[Yp2])/2)*sin ( Rangle);
+		    yrr = (x_rec[res]-(XPa[Xm1]+XPa[Xp2])/2.)*sin( Rangle)+(y_rec[res]-(YPa[Ym1]+YPa[Yp2])/2)*cos( Rangle);
 
-	        x_true[res] = xtr+XCent;
-	        y_true[res] = ytr+YCent;
-	        x_rec[res]  = xrr+XCent;
-	        y_rec[res] = yrr+YCent;
+		    x_true[res] = xtr+(XPa[Xm1]+XPa[Xp2])/2.;
+		    y_true[res] = ytr+(YPa[Ym1]+YPa[Yp2])/2;
+		    x_rec[res]  = xrr+(XPa[Xm1]+XPa[Xp2])/2.;
+		    y_rec[res] = yrr+(YPa[Ym1]+YPa[Yp2])/2;
+		   }  
 	       
-	        DataCorPointInside[res] = 0;
+	     DataCorPointInside[res] = 0;
+
 	       
-	        if (y_true[res]>YPa[Xm1]+Distance_Axis && y_true[res]<YPa[Xp2]-Distance_Axis && x_true[res] > XPa[Xm1]+Distance_Axis && x_true[res] <XPa[Xp2]-Distance_Axis)
+	     if (y_true[res]>YPa[Ym2]+Distance_Axis_cor &&  y_true[res]>YPa[Ym1]+Distance_Axis_cor && y_true[res]<YPa[Yp2]-Distance_Axis_cor
+		      && y_true[res]<YPa[Yp1]-Distance_Axis_cor
+		      &&  x_true[res] > XPa[Xm1]+Distance_Axis_cor  && x_true[res] > XPa[Xm2]+Distance_Axis_cor
+		      && x_true[res] <XPa[Xp1]-Distance_Axis_cor && x_true[res] <XPa[Xp2]-Distance_Axis_cor)
 		        DataCorPointInside[res] = 1;
-	      
-	        res++; // !!!! crea un array di dimensione res (se supera npos problemi)	       
-	     }	 	   	 
+
+	     if (DataCorPointInside[res]){
+		    XYSignalTime->SetBinContent(XYSignalTime->GetXaxis()->FindBin(x_true[res]),
+			  XYSignalTime->GetYaxis()->FindBin(y_true[res]),t_rec[res]+1);
+		    XYDelay->SetBinContent(XYDelay->GetXaxis()->FindBin(x_true[res]),XYDelay->GetYaxis()->FindBin(y_true[res]),t_rec[res]+1);
+		   }
+	     res++;
+	   } //while 
 	   
 	   res--;
 	   sim_point = res;
-	   cout << " Correction files with " << sim_point << " points" << endl;	   	   
-	   
+	   cout << " Correction files with " << sim_point << " points inside the pixel" << endl;	   	   
 	 }
 
   }
-
-   
+  
 }
 
 void RSD2_Digitizer_Cross13::SlaveBegin(TTree * /*tree*/)
@@ -346,6 +424,10 @@ void RSD2_Digitizer_Cross13::SlaveBegin(TTree * /*tree*/)
 
    TString option = GetOption();
 
+   XCent = (XPa[Xp2]+XPa[Xm1])/2;
+   YCent = (YPa[Yp2]+YPa[Ym1])/2;
+
+   cout << "Center of the pixel: "<< XCent << ", "<< YCent << endl;
 
 
 }
@@ -371,7 +453,7 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
    fReader.SetLocalEntry(entry);
    unsigned seed = chrono::steady_clock::now().time_since_epoch().count(); 
    default_random_engine generator(seed);
-   Noise =  NScale*5.7*pow(1 - AScale*AScale,0.5);
+   Noise =  NScale*RMSNoise*pow(1 - AScale*AScale,0.5);
   
    normal_distribution<double> distN(0,Noise);
    
@@ -382,12 +464,11 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
 
    //   cout << distN(generator) << endl; 
 
- if (entry == 0)
-	{
+  if (entry == 0){
 
 	  cout << "Additional noise term = " << Noise << " mV" << endl;
 	  // Design the pads
-	  for (int a = 0; a<5;a++) // bins = 20 um
+	  for (int a = alow; a<ahigh;a++) // bins = 20 um
 	    {
 	      if(a!=dcchannel)
 		{
@@ -399,11 +480,11 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
 	    }
 	      
 	}
+ 
+ 
+ XLaser = *XPos;
+ YLaser = *YPos;
 
- 	 XLaser = *XPos;
-   YLaser = *YPos;
-   XCent = (XPa[Xp2]+XPa[Xm1])/2;
-   YCent = (YPa[Yp2]+YPa[Ym1])/2;
 
    if (SquareCut ==10)
      {
@@ -425,6 +506,30 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
 	    //  ||   XLaser>XCent+500 || YLaser>YCent+500 || XLaser<XCent-500 || YLaser<YCent-500
 	    ) return 0;
      }
+
+
+   if (XLaser>XCent-40 && XLaser<XCent+40 && YLaser>YCent-40 && YLaser<YCent+40)
+     {
+       for (b=0;b<samples[0]-10;b++)
+	 {
+	   if (dcchannel ==0)  PShapeDCCh->Fill(time[b],m_amp0[b]); // 1000 point = 50 ns
+	   else if  (dcchannel ==2)  PShapeDCCh->Fill(time[b],m_amp2[b]); // 1000 point = 50 ns	   
+	   
+	 }
+     }
+
+   if (XLaser>XCent-225 && XLaser<XCent-175 && YLaser>YCent-325 && YLaser<YCent-275)
+     {
+       for (b=0;b<samples[0]-10;b++)
+	 {
+	   PShapeXm1->Fill(time[b]-t_max[0]+30,m_amp4[b]); 
+	   PShapeXm2->Fill(time[b]-t_max[0]+30,m_amp2[b]); 
+	   PShapeXp1->Fill(time[b]-t_max[0]+30,m_amp3[b]); 
+	   PShapeXp2->Fill(time[b]-t_max[0]+30,m_amp1[b]);
+	 }
+     }
+	   
+   
  // Design the True points
  if (*npos !=nposold)
       {
@@ -434,48 +539,91 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
 	 YTrueArray[*npos] = YLaser;
 	 LaserPointInside[*npos] = 0;
 
-	 if (YLaser>YPa[Ym1]+Distance_Axis && YLaser<YPa[Yp2]-Distance_Axis && XLaser>XPa[Xm1]+Distance_Axis && XLaser<XPa[Xp2]-Distance_Axis)  LaserPointInside[*npos] = 1;
-	 //	 if (Correction == 10) LaserPointInside[*npos] = 1;
+	 if (YLaser>YPa[Ym1]+Distance_Axis_data && YLaser<YPa[Yp2]-Distance_Axis_data && YLaser>YPa[Ym2]+Distance_Axis_data
+	     && YLaser<YPa[Yp1]-Distance_Axis_data
+	     && XLaser>XPa[Xm1]+Distance_Axis_data && XLaser<XPa[Xp2]-Distance_Axis_data
+	     && XLaser>XPa[Xm2]+Distance_Axis_data && XLaser<XPa[Xp1]-Distance_Axis_data
+	     )
+	   LaserPointInside[*npos] = 1;
+	 if (Correction == 10) LaserPointInside[*npos] = 1;
       }
+
+ ASum = 0;
+ 
+ 
+       for (int a = 0; a<300;a++)
+	 {
+	   //if (time[a]>DCTimeLow && time[a]<DCTimeHigh)
+	     {
+	       if (dcchannel ==0) 
+		 ASum +=m_amp0[a];
+	       //ASum +=(m_amp0[a]+m_amp1[a]+m_amp2[a]+m_amp3[a]+m_amp4[a]);
+	       else if (dcchannel ==2) 
+		 ASum +=m_amp2[a];
+	       // ASum +=(m_amp0[a]+m_amp1[a]+m_amp2[a]+m_amp3[a]+m_amp4[a]);
+	     }
+
+	 }
+
+       ASum *= (time[10]-time[9])*ADCmV*AScale/5.; // in fC
+       //    HDCSignal->Fill(area[dcchannel]*ADCmV*AScale);
+       if (LaserPointInside[*npos])
+	 {
+	   if (XLaser>XCent-100 && XLaser<XCent+100 && YLaser>YCent-100 && YLaser < YCent +100)
+	     HDCSignal->Fill(fabs(ASum));       
+	 }
+   
  // cout << "here 1 " << *XPos << " " << *YPos <<  " " << *npos << endl;
     // Pos. Reconstruction
     XNum = 0;
     YNum = 0;
     XYDen = 0;
+    NChMax = 0;
+    AMax = 0;
+
     SignalTotal = 0;
+    AllSignalTotal = 0;
+    
     //    cout << distN(e) << endl;
    
-    for (int a = 0; a<5;a++) // bins = 20 um
+    for (int a = alow; a<ahigh;a++) // bins = 20 um
       {
 	//	if ((a ==1 || a == 3 || a ==5 || a ==12 ) && LaserPointInside[*npos])
 	ChanRec = 0;
 	Signal[a] = 0;
+
+	if (ampl[a]>AMax)
+	  {
+	    AMax = ampl[a];
+	    NChMax = a;
+	  }
+	
+	 AllSignalTotal +=  (ampl[a]*AScale +distN(generator))*ADCmV;
 	
 	if (a != dcchannel)  ChanRec=1;
 
 	// Position reconstruction from amplitude weighted position
 	if(ChanRec && LaserPointInside[*npos])
-	  if (ampl[a]*AScale>10)
+	  // if (ampl[a]*AScale>10)
 	    {
-
-
 
 	      if (UseArea)
 		{
-		  Signal[a] = area[a]*AScale;
+		  Signal[a] = area[a]*AScale*ADCmV;
 		  SignalTotal +=  Signal[a];
 		}
 	      else
 		{
 		  
-		  Signal[a] = (ampl[a]*AScale +distN(generator))*0.248; // From TDC to mV		
-		  if (Signal[a]<3)
+		  Signal[a] = (ampl[a]*AScale +distN(generator))*ADCmV; // From TDC to mV		
+		   if (Signal[a]<-20)
 		    {
-		      Signal[a] = 0;
+		      //       Signal[a] = 0;
 		    }
 		  SignalTotal += Signal[a];		  
 		}
 
+	
 	      XNum += XPa[a]*Signal[a];	    
 	      YNum += YPa[a]*Signal[a];
 	      XYDen  += Signal[a];
@@ -483,9 +631,9 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
 	    
 	    }
 
-     }
+      }
   
- 
+  
     if (XYDen !=0)
       {
 	if (UseWeightedMean)
@@ -497,6 +645,7 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
 	  {
 	    xmin = (XPa[Xp2]+XPa[Xm1])/2+(XPa[Xp2]-XPa[Xm1])/2.*(1./kfactor*( (Signal[Xp2]+Signal[Xp1])- (Signal[Xm2]+Signal[Xm1])))/SignalTotal;
 	    ymin = (YPa[Yp2]+YPa[Xm1])/2+(YPa[Yp2]-YPa[Xm1])/2.*(1./kfactor*( (Signal[Yp2]+Signal[Yp1])- (Signal[Ym1]+Signal[Ym2])))/SignalTotal;
+	     if (xmin<XPa[Xm1]) cout << LaserPointInside[*npos] << " 0  " <<xmin << " " << XLaser << " " << YLaser << " " << Signal[3] << " " << Signal[5] <<  " " << ampl[3] << " " << ampl[5] << endl; 
 	    if (UseRotation)
 	      {
 		xminr = (XPa[Xp2]-XPa[Xm1])/2*(Signal[4]-Signal[1])/(Signal[1]+Signal[4]);// x axis at -45
@@ -511,9 +660,11 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
 	dif_min = 1000;
 	dif = 1000; 
 
-	HSignalTotal->Fill(SignalTotal);
-	HDCSignal->Fill(area[dcchannel]*0.247*AScale);
-	
+	if (LaserPointInside[*npos])
+	  {
+	    HSignalTotal->Fill(SignalTotal);	    	    
+	    // HDCSignal->Fill(area[dcchannel]*ADCmV*AScale);
+	  }
 	if (Correction == 1 || Correction == 11)
 	  {
 	    cor_x = 0;
@@ -581,40 +732,108 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
 	    //	     cout << " a= " << a << endl;	    
 	    cor_x = cor_nx/cor_d;
 	    cor_y = cor_ny/cor_d;
-	    // cout << cor_x << endl;
-	    //   cor_x = x_true[res_min] - x_rec[res_min];
-	    // cor_y = y_true[res_min] - y_rec[res_min];
+
 	    xmin +=  cor_x;	  
 	    ymin +=  cor_y;
 
-	    //	    xmin = x_true[res_min];
-	    // ymin = y_true[res_min];
-	    
-
-	    //       if (xmin-XLaser ==0)s
-	    //		  cout << xmin-XLaser  << " " << a <<  "  - A3 " << xmin << " " << XLaser << " " << " " << cor_nx << " " << cor_x << " " << Signal[4] << endl;
 	    
 	  }
+
+	Tcor3 = 0;
+	Tcor4 = 0;
+	Tcor6 = 0;
+	Tcor5 = 0;
+
+	if (Correction ==11 || Correction ==12)
+	  {
+
+	    Tcor4 =  XYDelay->GetBinContent(XYDelay->GetXaxis()->FindBin(xmin), XYDelay->GetYaxis()->FindBin(ymin))-1;
+	    
+	    Tcor3 =   XYDelay->GetBinContent( XYDelay->GetXaxis()->FindBin(XPa[Xp2]-(xmin-XPa[Xm1])),
+	    					  XYDelay->GetYaxis()->FindBin(ymin))-1;	    
+	    Tcor6 =   XYDelay->GetBinContent( XYDelay->GetXaxis()->FindBin(xmin),
+	    					  XYDelay->GetYaxis()->FindBin(YPa[Yp1]-(ymin-YPa[Ym1])))-1;
+	    Tcor5 =  XYDelay->GetBinContent( XYDelay->GetXaxis()->FindBin(XPa[Xp2]-(xmin-XPa[Xm1])),
+						  XYDelay->GetYaxis()->FindBin(YPa[Yp1]-(ymin-YPa[Ym1])))-1;
+	    
+	    // Tcor4 =  XYSignalTime->GetBinContent(XYSignalTime->GetXaxis()->FindBin(x_true[*npos]), XYSignalTime->GetYaxis()->FindBin(y_true[*npos]))-1;
+	    //Tcor3 =  XYSignalTime->GetBinContent(XYSignalTime->GetXaxis()->FindBin(XPa[Xp2]-(x_true[*npos]-XPa[Xm1])),
+	    //					 XYSignalTime->GetYaxis()->FindBin(y_true[*npos]))-1;
+	    //	    Tcor6 =  XYSignalTime->GetBinContent(XYSignalTime->GetXaxis()->FindBin(x_true[*npos]),
+	    //					 XYSignalTime->GetYaxis()->FindBin(YPa[Yp1]-(y_true[*npos]-YPa[Ym1])))-1;
+	    //	    Tcor5 =  XYSignalTime->GetBinContent(XYSignalTime->GetXaxis()->FindBin(XPa[Xp2]-(x_true[*npos]-XPa[Xm1])),
+	    //					 XYSignalTime->GetYaxis()->FindBin(YPa[Yp1]-(y_true[*npos]-YPa[Ym1])))-1;
+	  }
+	//	cout << Tcor3 << endl;
 	
+	TChannel[3] =  t_max[3]+TDelay[3]+Tcor3;
+	TChannel[4] =  t_max[4]+TDelay[4]+Tcor4;       
+	TChannel[5] =  t_max[5]+TDelay[5]+Tcor5;       
+	TChannel[6] =  t_max[6]+TDelay[6]+Tcor6;       
+	TTrigger     = t_max[0];
+
+       //       43
+       //	65
+
+	// 	if(xmin> XPa[Xm2] &&  xmin< XPa[Xm2]+250 && ymin<YPa[Xp2] && ymin>YPa[Xp2]-250 )
+	// 	  if(xmin> XCent-50 &&  xmin< XCent+50 && ymin>YCent-50 && ymin<YCent+50 )
+	if (LaserPointInside[*npos])
+	{
+
+	  TNum =0;
+	  TDen = 0;
+	  for (int a = alow; a<ahigh;a++) // bins = 20 um
+	    {
+	      if (a != dcchannel && fabs(TChannel[a]-TChannel[NChMax])<0.5)
+		{
+		  TNum += TChannel[a]*pow(Signal[a],1);
+		  TDen +=pow(Signal[a],1);
+		  //  cout << "a = " << a << " "  << TChannel[a] << " " << pow(Signal[a],1) << " " << TNum << " " << TDen <<  endl;
+
+		}
+	    }
+			 // Position reconstruction from amplitude weighted position
+			 
+	  EventTime = TTrigger-TNum/TDen;
+	  //  cout << EventTime << " " << endl;
+	  // EventTime =TTrigger-TChannel[4];
+	  // EventTime =TTrigger-(TChannel[4]+TChannel[3])/2;
+	  if (Correction == 10)
+	    EventTime =TTrigger-TChannel[4];
+
+	  
+	  HTime->Fill(EventTime);
+	  //	    if( EventTime>-1 && EventTime <1 )
+	  
+	  XYTimeArea->SetBinContent(XYTimeArea->GetXaxis()->FindBin(xmin),XYTimeArea->GetYaxis()->FindBin(ymin),EventTime+1);
+	  if (xmin<XPa[Xm1]) cout << LaserPointInside[*npos] << " " <<xmin << " " << XLaser << " " << YLaser << " " << Signal[3] << " " << Signal[5] <<  " " << ampl[3] << " " << ampl[5] << endl; 
+	}
+
 	HXPosRec[*npos]->Fill(xmin);
 	HYPosRec[*npos]->Fill(ymin);
+	HTimeRec[*npos]->Fill(EventTime);
+	
 	XYSignal->SetBinContent(XYPads->GetXaxis()->FindBin(XLaser),XYPads->GetYaxis()->FindBin(YLaser),SignalTotal);
-	//	XYSignal->SetBinContent(XYPads->GetXaxis()->FindBin(xmin),XYPads->GetYaxis()->FindBin(ymin),SignalTotal);
-
+       	// XYSignal->SetBinContent(XYPads->GetXaxis()->FindBin(xmin),XYPads->GetYaxis()->FindBin(ymin),SignalTotal);
 
 	//	if (xmin>800)
 	
 	HXAllPosRec->Fill(xmin-XLaser);
 	//	if (ymin>800)
 	HYAllPosRec->Fill(ymin-YLaser);
-	//	cout << ymin << " " << YLaser << endl;
+
 
 	
 	HXAllAbsPos->Fill(xmin);
 	HYAllAbsPos->Fill(ymin);
       }
+
+
     
-    //    if (*event<300 && XNum/XYDen>10) cout << "x = " << XNum/XYDen << " X true = " <<  XLaser << "y = " << YNum/XYDen << " Y true = " <<  YLaser << endl;
+    if (fabs(ASum)>0){
+      XYDCArea->SetBinContent(XYDCArea->GetXaxis()->FindBin(XLaser),XYDCArea->GetYaxis()->FindBin(YLaser),fabs(ASum));
+      XYACArea->SetBinContent(XYDCArea->GetXaxis()->FindBin(XLaser),XYDCArea->GetYaxis()->FindBin(YLaser),fabs(AllSignalTotal));
+    }
     
    return kTRUE;
 }
@@ -626,6 +845,8 @@ void RSD2_Digitizer_Cross13::SlaveTerminate()
    // on each slave server.
 
   //      dif = 0;
+
+  //cout << " here 2" << endl;
    for (int b=0;b<*npos;b++)
      {
        if ( HXPosRec[b]->GetEntries()>200) // At least 20 entries to perform a fit
@@ -634,11 +855,14 @@ void RSD2_Digitizer_Cross13::SlaveTerminate()
 	   if (HYPosRec[b]->GetMean()>10) HYPosRec[b]->Fit("gaus","Q0 tw");
 	   if (HXPosRec[b]->GetFunction("gaus") != NULL) XRecArray[b] =  HXPosRec[b]->GetFunction("gaus")->GetParameter(1);
 	   if (HYPosRec[b]->GetFunction("gaus") != NULL) YRecArray[b] =  HYPosRec[b]->GetFunction("gaus")->GetParameter(1);
+	   if (HTimeRec[b]->GetFunction("gaus") != NULL) TRecArray[b] =  HTimeRec[b]->GetFunction("gaus")->GetParameter(1);
 	 }
        else
 	 {
 	   XRecArray[b] =  HXPosRec[b]->GetMean();
 	   YRecArray[b] =  HYPosRec[b]->GetMean();
+	   TRecArray[b] =  HTimeRec[b]->GetMean();
+	   
 	   XYXOffset->SetBinContent(XYPads->GetXaxis()->FindBin(xmin),XYPads->GetYaxis()->FindBin(ymin),HXPosRec[b]->GetStdDev());
 	   //  cout << " offset " << HXPosRec[b]->GetStdDev() << endl;
 	   if (HXPosRec[b]->GetStdDev() !=0) HXSigma->Fill(HXPosRec[b]->GetStdDev());
@@ -667,14 +891,14 @@ void RSD2_Digitizer_Cross13::SlaveTerminate()
        
        for (b=1;b<*npos;b++) //loop over positions
 	 {
-	   if (LaserPointInside[b])
+	   //	   if (LaserPointInside[b])
 	     {
-	       outfile1  <<  XTrueArray[b] << " \t " << YTrueArray[b] << " \t " << XRecArray[b] << " \t " << YRecArray[b] << std::endl;
+	       outfile1  <<  XTrueArray[b] << " \t " << YTrueArray[b] << " \t " << XRecArray[b] << " \t " << YRecArray[b] << " \t " << TRecArray[b] << std::endl;
 	       dif = pow(pow(x_true[b]-x_rec[b],2) + pow(y_true[b]-y_rec[b],2), 0.5);
 	       HMigration->Fill(dif);
 	     }
 	   if (LaserPointInside[b])
-	     outfile2  <<  (XTrueArray[b]-XPa[Xm1])/650.-1. << " \t " << (YTrueArray[b]-YPa[Xm1])/650.-1. << " \t " << (XRecArray[b]-XPa[Xm1])/650.-1. << " \t " << (YRecArray[b]-YPa[Xm1])/650.-1. << std::endl;
+	     outfile2  <<  (XTrueArray[b]-XPa[Xm1])/650.-1. << " \t " << (YTrueArray[b]-YPa[Ym1])/650.-1. << " \t " << (XRecArray[b]-XPa[Xm1])/650.-1. << " \t " << (YRecArray[b]-YPa[Ym1])/650.-1. << std::endl;
 	   
 	 }
        cout << "Writing correction file " << Filedatacorr << endl; 
@@ -685,6 +909,7 @@ void RSD2_Digitizer_Cross13::SlaveTerminate()
    gr1 = new TGraph(*npos,XRecArray,YRecArray);
    //  gr1 = new TGraph(*npos,XTrueArray,YTrueArray);
    
+   cout << " here 3" << endl;
 }
 
 void RSD2_Digitizer_Cross13::Terminate()
@@ -721,7 +946,7 @@ void RSD2_Digitizer_Cross13::Terminate()
   pt12->SetTextColor(kRed);
   pt12->Draw();
 
- 	c1->cd(3);
+ c1->cd(3);
   XYPads->Draw();
   gr1->SetMarkerSize(0.2);
   gr1->SetMarkerStyle(107);
@@ -732,6 +957,7 @@ void RSD2_Digitizer_Cross13::Terminate()
   pt13->AddText("Reconstructed Positions");
   pt13->SetTextColor(kRed);
   pt13->Draw();
+
 
   sprintf(histname,"C4 Signal");
   c4 = new TCanvas("c4",histname,800,800);
@@ -745,13 +971,27 @@ void RSD2_Digitizer_Cross13::Terminate()
   HDCSignal->Fit("gaus", "tw");
   
 
+
+  
+  c4->cd(3);
+    XYPads->SetStats(0);
+   XYACArea->SetStats(0);
+   XYACArea->SetTitle("");
+   XYACArea->Draw("colz");
+  XYPads->Draw("same");
+
+  c4->cd(4);
+
+    XYPads->SetStats(0);
+   XYDCArea->SetStats(0);
+   XYDCArea->SetTitle("");
+   XYDCArea->Draw("colz");
+  XYPads->Draw("same");
+    
   sprintf(histname,"C3 Offset & Sigma");
   c3 = new TCanvas("c3",histname,700,700);
   c3->Divide(2,2);
-  
-  c4->cd(3);
-  HNumPoint->Draw();
-    
+
   c3->cd(1);
   HXSigma->Fit("gaus","tw");
   c3->cd(2);
@@ -764,7 +1004,7 @@ void RSD2_Digitizer_Cross13::Terminate()
 
   
   
-  c1->cd(4);
+  c1->cd(4); 
   XYPads->Draw();
   for (Int_t cc=0; cc< nposold; cc++)
     {
@@ -900,14 +1140,105 @@ void RSD2_Digitizer_Cross13::Terminate()
     //  HYAllAbsPos->SetStats(1);
   HYAllAbsPos->Draw();
 
+
+  sprintf(histname,"C7 DC");
+  c7 = new TCanvas("c7",histname,700,700);
+  c7->Divide(2,2);
+  c7->cd(1);
+  exp2 = new TF1("exp2","exp([0]+x*[1])",0,1000);
+  PShapeDCCh->Draw();
+  if ( PShapeDCCh->GetEntries()>1000)
+    {
+      PShapeDCCh->Fit("exp2","Q","",DCTimeLow,DCTimeHigh);
+      cout<< left << setw(20) << "RC = " <<setprecision(3) << 1./PShapeDCCh->GetFunction("exp2")->GetParameter(1) << " [ns]" << endl;
+    }
+
+  c7->cd(2);
+  XYPads->Draw();
+  
+  sprintf(histname,"C8 AC Signal");
+  c8 = new TCanvas("c8",histname,700,700);
+  c8->Divide(2,2);
+  c8->cd(1);
+  
+  PShapeXp1->SetMaximum(130);
+  PShapeXp2->SetMaximum(130);
+  PShapeXm1->SetMaximum(130);
+  PShapeXm2->SetMaximum(130);
+  PShapeXp1->SetStats(0);
+  PShapeXp2->SetStats(0);
+  PShapeXm1->SetStats(0);
+  PShapeXm2->SetStats(0);
+  PShapeXp1->SetTitle("");
+  PShapeXp2->SetTitle("");
+  PShapeXm1->SetTitle("");
+  PShapeXm2->SetTitle("");
+  PShapeXm1->SetLineColor(6);
+  PShapeXm2->SetLineColor(2);
+  PShapeXp1->SetLineColor(3);
+  PShapeXp2->SetLineColor(4);
+
+  PShapeXm1->SetMarkerColor(6); 
+  PShapeXm2->SetMarkerColor(2); 
+  PShapeXp1->SetMarkerColor(3); 
+  PShapeXp2->SetMarkerColor(4); 
+  
+  PShapeXp1->Draw();
+  c8->cd(2);
+
+  PShapeXp2->Draw();
+  c8->cd(3);
+  PShapeXm1->Draw();
+  c8->cd(4);
+  PShapeXm2->Draw();
+  
   cout << "Central position of box (x,y) = " << (XPa[Xp2]+XPa[Xm1])/2<<","<<(YPa[Xp2]+YPa[Xm1])/2 << endl;
   cout << "Mean position of data (x,y) = " << HXAllAbsPos->GetMean()<<","<<HYAllAbsPos->GetMean() << endl;
   cout << "Mean Migration = " << HMigration->GetMean()<<" [um]" << endl;
-  
+  cout << "Area = " <<  HDCSignal->GetFunction("gaus")->GetParameter(1) << " [fC], gain =  " << HDCSignal->GetFunction("gaus")->GetParameter(1)*2. << endl;  
+
+
+
 
   
-  sprintf(histname,"C2 XOff");
+  sprintf(histname,"C2 Time");
   c2 = new TCanvas("c2",histname,900,700);
+  c2->Divide(2,2);
+
+
+  
+  c2->cd(1);
+  XYPads->SetStats(0);
+  XYSignalTime->SetStats(0);
+  XYSignalTime->SetTitle("Signal delay with respect of top left pad");
+  XYSignalTime->GetZaxis()->SetRangeUser(0.5, 1.0);
+  XYSignalTime->Draw("colz");
+  XYPads->Draw("same");
+
+  c2->cd(3);
+  XYPads->SetStats(0);
+  XYDelay->SetStats(0);
+  XYDelay->SetTitle("Signal delay with respect of top left pad");
+  XYDelay->GetZaxis()->SetRangeUser(0.5, 1.0);
+  XYDelay->Draw("colz");
+  XYPads->Draw("same");
+
+  
+
+  c2->cd(2);
+  HTime->SetTitle("Trigger - Event Time");
+  HTime->Fit("gaus","tw");
+
+ c2->cd(4);
+   XYPads->SetStats(0);  
+  XYTimeArea->SetStats(0);
+  XYTimeArea->SetTitle("Trigger - Event Time");
+  XYTimeArea->GetZaxis()->SetRangeUser(0.9, 1.1);
+  XYTimeArea->Draw("colz");
+  XYPads->Draw("same");
+
+  c1->cd(1);
+  /* 
   c2->Divide(3,3);
   b = 0;
   for (a = 240;a<250;a++)
@@ -924,14 +1255,6 @@ void RSD2_Digitizer_Cross13::Terminate()
       }
 
     }
-
-      if(save_plots){
-      	c1->SaveAs("W3/c1.pdf");
-      	c2->SaveAs("W3/c2.pdf");
-      	c3->SaveAs("W3/c3.pdf");
-      	c4->SaveAs("W3/c4.pdf");
-      	c5->SaveAs("W3/c5.pdf");
-      	c6->SaveAs("W3/c6.pdf");
-      }
   
+  */
 }
