@@ -61,9 +61,9 @@ int main()
   // read the active numnber of channels
   int ntmp;
   int  Nth = 0;
-  int np_Max = 300; // 800;
+  int np_Max = 800; // 800;
   int np_acq = 0; // points in acquisizion, set to == size  
-  int np_offset = 100; //100; //starting point for waveform analysis
+  int np_offset = 200; //100; //starting point for waveform analysis
 
  
   //  TRandom *xi = new TRandom();
