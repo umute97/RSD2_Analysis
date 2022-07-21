@@ -1,13 +1,16 @@
 import sys
 import ROOT
+import os
+import shutil
 from ROOT import TH2F, TFile, TTree, TCanvas, TH1F, TString
 from array import array
 from progress.bar import ChargingBar
 
 ROOT.EnableThreadSafety()
 ROOT.EnableImplicitMT(8)
+renamefile = True
 
-nHists  = 16 
+nHists  = 16
 step    = 10
 maxdimx = 1100
 maxdimy = 700
@@ -15,7 +18,7 @@ fHist     = []
 fCanvas   = []
 
 if len(sys.argv) == 1:
-	filename = "../Run22_150V.root" #"../RunXX.root" # "/home/daq/hdd8TB/RSD2/stats_N_script/Run22_240.root" # " 
+	filename = "../RunXX.root" # "/home/daq/hdd8TB/RSD2/stats_N_script/Run22_240.root" # " 
 else:
 	filename = sys.argv[1]
 myFile = TFile.Open(filename, "OPEN")
@@ -39,3 +42,13 @@ for j in range(nHists):
 	fCanvas[j].Modified()
 	fCanvas[j].Update()
 	fCanvas[j].SaveAs(str("c%d.pdf"%j))
+
+if renamefile:
+	with open("/home/daq/Desktop/Luca/Analisi_RSD/RSD2_Analysis/Input_Folder_Digitizer_wfm.txt", 'r') as fr:
+	    lines = fr.readlines()
+	    path = lines[7]
+	tpath     = path.replace("ana /home/daq/hdd8TB/RSD2/raw/","")
+	run       = tpath[tpath.find("Run"):tpath.find("Run")+5]
+	bias      = tpath[tpath.find("V")-3:tpath.find("V")]
+	stats_dir = "/home/daq/hdd8TB_bis/RSD2/stats_N_script/"
+	shutil.move(filename,stats_dir+run+"_"+bias+".txt")

@@ -1,11 +1,11 @@
 Max_number_channels 18
-Run 175
+Run 240
 StartingTrig 0
-MaxEventPerPoint 10
+MaxEventPerPoint 20
 SkipPos  1
 Nchannel  16
 MaxEvent  -1
-ana /home/daq/hdd8TB/RSD2/raw/fiocchi14-RSD2_Run25_x_0_750_y_0_750_100waveforms_150V_10umstep_49.7pc_W3.root
+ana /home/daq/hdd8TB/RSD2/raw/croci450-RSD2_Run22_x_0_1100_y_0_700_100waveforms_240V_10umstep_49.5pc_W3.root
 nmedia 1
 Run -1
 
