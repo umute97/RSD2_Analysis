@@ -72,7 +72,7 @@ public :
 #define PI 3.14159265
    Double_t param, result, Rangle;
    Double_t xtr, ytr,xrr,yrr,DT, EventTime;
-   
+   Double_t XPa_m1, XPa_m2, XPa_p1, XPa_p2, YPa_m1, YPa_m2, YPa_p1, YPa_p2;
    Double_t DCTimeLow, DCTimeHigh;
 
    Double_t XRecArray[8000];
@@ -127,7 +127,8 @@ public :
 
    int XPa[18] = {1655,1655,1205,0,755,755,305,305,305,0,755,0,0,1205,0,1655,0,0};
    int YPa[18] = {470,920,470,0,920,470,920,470,20,0,20,0,0,20,0,20,0,0};
-
+   int XPa_old[18] = {1655,1655,1205,0,755,755,305,305,305,0,755,0,0,1205,0,1655,0,0};
+   int YPa_old[18] = {470,920,470,0,920,470,920,470,20,0,20,0,0,20,0,20,0,0};
 
    Double_t x_true[8000], y_true[8000], x_rec[8000], y_rec[8000],t_rec[8000];
    Double_t dif, dif_min, cor_x,cor_y, cor_nx,cor_d,cor_ny;
@@ -164,6 +165,8 @@ public :
    Int_t ChanRec=0;
    int UseArea = 1;
    int UseRotation = 0;
+   bool RotateLasPositions = false;
+   float RangleLasPos = 0.;
    Int_t UseWeightedMean = 0;
 
    Double_t weight;

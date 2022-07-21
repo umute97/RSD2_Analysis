@@ -1,5 +1,5 @@
 cd /home/daq/Desktop/Luca/Analisi_RSD/RSD2_Analysis/test_newfiles
-for i in {1..15}
+for i in {0..15}
 do
    pdftoppm -png "c${i}.pdf" > "c${i}.png"
 done
