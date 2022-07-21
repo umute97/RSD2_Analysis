@@ -18,7 +18,7 @@ fHist     = []
 fCanvas   = []
 
 if len(sys.argv) == 1:
-	filename = "../RunXX.root" # "/home/daq/hdd8TB/RSD2/stats_N_script/Run22_240.root" # " 
+	filename = "/home/daq/hdd8TB_bis/RSD2/stats_N_script/RunXX.root" # "/home/daq/hdd8TB/RSD2/stats_N_script/Run22_240.root" # " 
 else:
 	filename = sys.argv[1]
 myFile = TFile.Open(filename, "OPEN")
@@ -51,4 +51,4 @@ if renamefile:
 	run       = tpath[tpath.find("Run"):tpath.find("Run")+5]
 	bias      = tpath[tpath.find("V")-3:tpath.find("V")]
 	stats_dir = "/home/daq/hdd8TB_bis/RSD2/stats_N_script/"
-	shutil.move(filename,stats_dir+run+"_"+bias+".txt")
+	shutil.move(filename,stats_dir+run+"_"+bias+".root")

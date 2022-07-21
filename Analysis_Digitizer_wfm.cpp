@@ -46,7 +46,7 @@ int main()
   
   //  int samplesfact=1;  //divider to sample rate for waveform memorization
 
-  TFile *OutputFile = new TFile("RunXX.root","recreate");
+  TFile *OutputFile = new TFile("/home/daq/hdd8TB_bis/RSD2/stats_N_script/RunXX.root","recreate");
 
   ifstream InputCARD("Input_Folder_Digitizer_wfm.txt");
   
