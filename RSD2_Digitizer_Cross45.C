@@ -411,82 +411,66 @@ Bool_t RSD2_Digitizer_Cross45::Process(Long64_t entry)
    default_random_engine generator(seed);
    Noise =  NScale*5.7*pow(1 - AScale*AScale,0.5);
    normal_distribution<double> distN(0,Noise);
-   if (entry == 0)
-     {
-       DT = time[1]-time[0];
-       cout << "Additional noise term = " << Noise << " mV" << endl;  
-       // Design the pads
-       for (int a = 0; a<*nchro-2;a++) // bins = 20 um
-   {
-     if (a ==Xm1 || a == Xm2 || a ==Xp1 || a ==Xp2 )
-       {
-         for (int b = -Xarmlenght; b<Xarmlenght;b++) // bins = 20 um
-     XYPads->SetBinContent(XYPads->GetXaxis()->FindBin(XPa[a]+b),XYPads->GetYaxis()->FindBin(YPa[a]),500);
-         for (int b = -Yarmlenght; b<Yarmlenght;b++) // bins = 20 um
-     XYPads->SetBinContent(XYPads->GetXaxis()->FindBin(XPa[a]),XYPads->GetYaxis()->FindBin(YPa[a]+b),500);
+   if (entry == 0){
+    DT = time[1]-time[0];
+    cout << "Additional noise term = " << Noise << " mV" << endl;  
+    // Design the pads
+    for (int a = 0; a<*nchro-2;a++){
+     if (a ==Xm1 || a == Xm2 || a ==Xp1 || a ==Xp2 ){
+       for (int b = -Xarmlenght; b<Xarmlenght;b++) // bins = 20 um
+         XYPads->SetBinContent(XYPads->GetXaxis()->FindBin(XPa[a]+b),XYPads->GetYaxis()->FindBin(YPa[a]),500);
+       for (int b = -Yarmlenght; b<Yarmlenght;b++) // bins = 20 um
+         XYPads->SetBinContent(XYPads->GetXaxis()->FindBin(XPa[a]),XYPads->GetYaxis()->FindBin(YPa[a]+b),500);
        }
-   }
      }
+   }
    
    XLaser = *XPos;
    YLaser = *YPos;
    //  if (XLaser>600) return 0;
 
-   if (XLaser>XCent-40 && XLaser<XCent+40 && YLaser>YCent-40 && YLaser<YCent+40)
-     {
-       for (b=0;b<samples[0]-10;b++)
-   {
-     if (dcchannel ==0)  PShapeDCCh->Fill(time[b],-m_amp0[b]); // 1000 point = 50 ns
-     else if  (dcchannel ==2)  PShapeDCCh->Fill(time[b],-m_amp2[b]); // 1000 point = 50 ns
-     
-     
+   if (XLaser>XCent-40 && XLaser<XCent+40 && YLaser>YCent-40 && YLaser<YCent+40){
+      for (b=0;b<samples[0]-10;b++){
+       if (dcchannel ==0)  PShapeDCCh->Fill(time[b],-m_amp0[b]); // 1000 point = 50 ns
+       else if  (dcchannel ==2)  PShapeDCCh->Fill(time[b],-m_amp2[b]); // 1000 point = 50 ns
+    }
    }
-     }
    
-   if (*npos !=nposold)
-     {
-       LaserPointInside[*npos] = 0;
-       XTrueArray[*npos] = 0;
-       YTrueArray[*npos] = 0;
+   if (*npos !=nposold){
+      LaserPointInside[*npos] = 0;
+      XTrueArray[*npos] = 0;
+      YTrueArray[*npos] = 0;
 
-       nposold = *npos;
-       XYPos->SetBinContent(XYPos->GetXaxis()->FindBin(*XPos),XYPads->GetYaxis()->FindBin(*YPos),*npos);
+      nposold = *npos;
+      XYPos->SetBinContent(XYPos->GetXaxis()->FindBin(*XPos),XYPads->GetYaxis()->FindBin(*YPos),*npos);
        
-       if (YLaser>YPa[Ym1]+Distance_Axis && YLaser<YPa[Yp2]-Distance_Axis && XLaser>XPa[Xm1]+Distance_Axis && XLaser<XPa[Xp2]-Distance_Axis)
-       //   if (YLaser>500 && YLaser<900 && XLaser>300 && XLaser<750)
-   LaserPointInside[*npos] = 1;
-       
+      if (YLaser>YPa[Ym1]+Distance_Axis && YLaser<YPa[Yp2]-Distance_Axis && XLaser>XPa[Xm1]+Distance_Axis && XLaser<XPa[Xp2]-Distance_Axis)
+      //   if (YLaser>500 && YLaser<900 && XLaser>300 && XLaser<750)
+        LaserPointInside[*npos] = 1;
        //   if (Correction == 10) LaserPointInside[*npos] = 1;
-
-       if (LaserPointInside[*npos])
-   {
-     XTrueArray[*npos] = *XPos;
-     YTrueArray[*npos] = *YPos;
-    
+      if (LaserPointInside[*npos]){
+        XTrueArray[*npos] = *XPos;
+        YTrueArray[*npos] = *YPos;
+      }
    }
-
-       
-     }
 
 
    ASum = 0;
-   //   if (XLaser<50 && YLaser>200 && YLaser<300)
-     {
-       for (int a = 0; a<300;a++)
-   {
-      if (time[a]>20 && time[a]<60)
-       ASum +=m_amp0[a];
-     //ASum += m_amp0[a]+m_amp1[a]+m_amp12[a]+m_amp3[a]+m_amp14[a];
-   }
-       ASum *= (time[10]-time[9])*ADCmV*AScale;
-       //    HDCSignal->Fill(area[dcchannel]*ADCmV*AScale);
-     }
+   //   if (XLaser<50 && YLaser>200 && YLaser<300){
+   for (int a = 0; a<300;a++){
+    if (time[a]>20 && time[a]<60)
+      ASum +=m_amp0[a];
+      //ASum += m_amp0[a]+m_amp1[a]+m_amp12[a]+m_amp3[a]+m_amp14[a];
+    }
+   ASum *= (time[10]-time[9])*ADCmV*AScale;
+   //    HDCSignal->Fill(area[dcchannel]*ADCmV*AScale);
+   //}
    // Pos. Reconstruction
-     XNum = 0;
-     YNum = 0;
-     XYDen = 0;
-     NChMax = 0;
-     AMax = 0;
+   XNum = 0;
+   YNum = 0;
+   XYDen = 0;
+   NChMax = 0;
+   AMax = 0;
    
    SignalTotal = 0;   
 

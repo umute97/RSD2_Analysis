@@ -10,17 +10,20 @@ ROOT.EnableThreadSafety()
 ROOT.EnableImplicitMT(8)
 renamefile = True
 
-nHists  = 16
-step    = 10
-maxdimx = 1100
-maxdimy = 700
+nHists  = 5
+step    = 20
+maxdimx = 1500
+maxdimy = 1500
 fHist     = []
 fCanvas   = []
 
 if len(sys.argv) == 1:
 	filename = "/home/daq/hdd8TB_bis/RSD2/stats_N_script/RunXX.root" # "/home/daq/hdd8TB/RSD2/stats_N_script/Run22_240.root" # " 
-else:
+if len(sys.argv) == 2:
 	filename = sys.argv[1]
+if len(sys.argv) > 2:
+        filename = sys.argv[1]
+        renamefile = sys.argv[2]
 myFile = TFile.Open(filename, "OPEN")
 tree = myFile.Get("Analysis")
 
@@ -51,4 +54,4 @@ if renamefile:
 	run       = tpath[tpath.find("Run"):tpath.find("Run")+5]
 	bias      = tpath[tpath.find("V")-3:tpath.find("V")]
 	stats_dir = "/home/daq/hdd8TB_bis/RSD2/stats_N_script/"
-	shutil.move(filename,stats_dir+run+"_"+bias+".root")
+	shutil.move(filename,stats_dir+run+"_"+bias+"V.root")
