@@ -102,7 +102,7 @@ Double_t xtr, ytr,xrr,yrr;
    int datataking = 0;
    int dcchannel = 0;
    int alow, ahigh;
-   
+   int n_integral_DC = 800;
 
    Double_t MaxDim = 0;
    Double_t AScale = 1.;

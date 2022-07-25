@@ -74,6 +74,7 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
    Rangle = 0* PI / 180.0;  // angle of rotation of training data
    RMSNoise = 4.439 ; // In ADC count
    Radius = 30; //30;
+   n_integral_DC = 1000;
 
    AScale = 1;// 10./63. ;// gain X/66; 35, 53,66
    NScale = 1.2;
@@ -192,6 +193,8 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
      }
    
     else if (datataking == 4){
+      //XOffset = 125;
+      //YOffset = 120;
       XOffset = 125;
       YOffset = 120;
        
@@ -319,7 +322,7 @@ void RSD2_Digitizer_Cross13::Begin(TTree * /*tree*/)
   sprintf(histname,"; Signal Total [mV] ;Entries");       
   HSignalTotal = new TH1F ("HSignalTotal",histname,100, 0, 350. );
   sprintf(histname,"; DC Signal  [fC] ;Entries");       
-  HDCSignal = new TH1F ("HDCSignal",histname,100, 0, 50. );
+  HDCSignal = new TH1F ("HDCSignal",histname,200, -100, 100. );
 
   sprintf(histname,"; Shift  [um] ;Entries");       
   HMigration = new TH1F ("HMigration",histname,100, 0, 350. );
@@ -551,15 +554,14 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
  ASum = 0;
  
  
-       for (int a = 0; a<300;a++)
-	 {
+       for (int a = 0; a<n_integral_DC;a++){
 	   //if (time[a]>DCTimeLow && time[a]<DCTimeHigh)
 	     {
 	       if (dcchannel ==0) 
-		 ASum +=m_amp0[a];
+		      ASum += m_amp0[a];
 	       //ASum +=(m_amp0[a]+m_amp1[a]+m_amp2[a]+m_amp3[a]+m_amp4[a]);
 	       else if (dcchannel ==2) 
-		 ASum +=m_amp2[a];
+		      ASum += m_amp2[a];
 	       // ASum +=(m_amp0[a]+m_amp1[a]+m_amp2[a]+m_amp3[a]+m_amp4[a]);
 	     }
 
@@ -570,7 +572,8 @@ Bool_t RSD2_Digitizer_Cross13::Process(Long64_t entry)
        if (LaserPointInside[*npos])
 	 {
 	   if (XLaser>XCent-100 && XLaser<XCent+100 && YLaser>YCent-100 && YLaser < YCent +100)
-	     HDCSignal->Fill(fabs(ASum));       
+       //HDCSignal->Fill(fabs(ASum));       
+	     HDCSignal->Fill(ASum);       
 	 }
    
  // cout << "here 1 " << *XPos << " " << *YPos <<  " " << *npos << endl;
@@ -968,6 +971,7 @@ void RSD2_Digitizer_Cross13::Terminate()
 
   c4->cd(2);
 
+  HDCSignal->Rebin(4);;
   HDCSignal->Fit("gaus", "tw");
   
 

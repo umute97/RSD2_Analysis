@@ -5,10 +5,12 @@ make -f Makefile_Digitizer_wfm
 nohup nice ./Analysis_Digitizer_wfm
 cd /home/daq/Desktop/Luca/DiscordBots/RSD2
 python3 Analysis_alert.py
-#nohup nice root -lq Process_RSD2.cpp #could be useful in the future
+#could be useful in the future
+#nohup nice root -lq Process_RSD2.cpp 
 #cd W3/ 
 cd /home/daq/Desktop/Luca/Analisi_RSD/RSD2_Analysis/test_newfiles
-python3 test_rootfile.py ../RunXX.root #moves the file into the stats directory
+#moves the file into the stats directory and renames it
+python3 test_rootfile.py /home/daq/hdd8TB_bis/RSD2/stats_N_script/RunXX.root 
 #from here on no actions on the output root file are taken
 for i in {0..15}
 do

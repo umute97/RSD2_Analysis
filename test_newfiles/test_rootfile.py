@@ -54,4 +54,8 @@ if renamefile:
 	run       = tpath[tpath.find("Run"):tpath.find("Run")+5]
 	bias      = tpath[tpath.find("V")-3:tpath.find("V")]
 	stats_dir = "/home/daq/hdd8TB_bis/RSD2/stats_N_script/"
-	shutil.move(filename,stats_dir+run+"_"+bias+"V.root")
+	savepath = stats_dir+run+"_"+bias+"V.root"
+	while(os.path.isfile(savepath)):
+		savepath = savepath.replace(".root","") + "_RenameThis.root"
+	print(f"saving file as: ", savepath)
+	shutil.move(filename,savepath)

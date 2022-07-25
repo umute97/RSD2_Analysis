@@ -46,7 +46,7 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
       = 12 show correction Data without using it;
    */
 
-   Correction =11;
+   Correction = 11;
  
    ExpCor = 2; // 
 
@@ -66,6 +66,7 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
    
    XOffset = 0;
    YOffset = 0; //Nbox = 1 80
+   n_integral_DC = 1000;
 
 
    if (datataking ==0){
@@ -121,7 +122,7 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
 
    else if (datataking ==2){
 
-       //please always use the crosses with these pairs:
+       //please always use the crosses positions stricly with these pairs:
        // (Xm1,Ym1) -- (Xm2,Yp1) -- (Xp1,Ym2) -- (Xp2,Yp2)
        dcchannel = 0;
        Xm1 = 10;
@@ -148,8 +149,12 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
        YPa[Yp1] = 545;
        YPa[Yp2] = 525;
 
-       cout << "mean along the diagonal before rotation: (" << (XPa[Xp2] + XPa[Xm1])/2<< "," << (YPa[Yp2] + YPa[Ym1])/2<<")" << endl;
-       RangleLasPos = 3*PI/180.;
+       //cout << "mean along the diagonal before rotation: (" << (XPa[Xp2] + XPa[Xm1])/2<< "," << (YPa[Yp2] + YPa[Ym1])/2<<")" << endl;
+
+       cout << "Reconstruction matrix rotation angle: " << Rangle*180/PI << " degrees" << endl;
+       RangleLasPos = 3*PI/180.; //rotation angle for the laser (and crosses) points
+       cout << "Laser points rotation angle: " << RangleLasPos*180/PI << " degrees" << endl;
+
        if(RangleLasPos!=0){
         //rotating the crosses positions
         XPa_old[Xm1] = XPa[Xm1];
@@ -172,8 +177,7 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
         YPa[Ym2] = (XPa_old[Xp1] - xcentre)*sin(RangleLasPos) + (YPa_old[Ym2] - ycentre)*cos(RangleLasPos) + ycentre; 
         YPa[Yp1] = (XPa_old[Xm2] - xcentre)*sin(RangleLasPos) + (YPa_old[Yp1] - ycentre)*cos(RangleLasPos) + ycentre; 
         YPa[Yp2] = (XPa_old[Xp2] - xcentre)*sin(RangleLasPos) + (YPa_old[Yp2] - ycentre)*cos(RangleLasPos) + ycentre;
-        cout << "mean along the diagonal after rotation: (" << xcentre << "," << ycentre <<")" << endl;
-        //abort();
+        //cout << "mean along the diagonal after rotation: (" << xcentre << "," << ycentre <<")" << endl;
        }
 
 
@@ -262,7 +266,7 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
    HSignalTotal = new TH1F ("HSignalTotal",histname,100, 0, 500. );
 
    sprintf(histname,"; DC Signal  [fC] ;Entries");       
-   HDCSignal = new TH1F ("HDCSignal",histname,100, 0, 50. );
+   HDCSignal = new TH1F ("HDCSignal",histname,200, -100, +100. );
    
    sprintf(histname,"; Shift  [um] ;Entries");       
    HMigration = new TH1F ("HMigration",histname,100, 0, 350. );
@@ -457,7 +461,7 @@ Bool_t RSD2_Digitizer_Cross45::Process(Long64_t entry)
 
    ASum = 0;
    //   if (XLaser<50 && YLaser>200 && YLaser<300){
-   for (int a = 0; a<300;a++){
+   for (int a = 0; a<n_integral_DC;a++){
     if (time[a]>20 && time[a]<60)
       ASum +=m_amp0[a];
       //ASum += m_amp0[a]+m_amp1[a]+m_amp12[a]+m_amp3[a]+m_amp14[a];
@@ -476,7 +480,8 @@ Bool_t RSD2_Digitizer_Cross45::Process(Long64_t entry)
 
    if (LaserPointInside[*npos])
      {
-       HDCSignal->Fill(fabs(ASum/5.));
+       HDCSignal->Fill(ASum/5.);
+       //HDCSignal->Fill(fabs(ASum/5.));
 
        //   cout << *XPos << " , " << *YPos << " npos " << *npos << endl;
 
