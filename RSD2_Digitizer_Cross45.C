@@ -62,7 +62,7 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
    UseRotation = 0;
    Rangle = 0* PI / 180.0;  // angle of rotation of training data
 
-   datataking = 2; // 1 = new data taking //2 = W3 datataking 
+   datataking = 2; // 1 = new data taking //2 = W3 datataking, run 22
 
    AScale = 1; //0./42. ;// gain X/66; 35, 53,66
    NScale = 1.2;
