@@ -8,9 +8,9 @@ from progress.bar import ChargingBar
 
 ROOT.EnableThreadSafety()
 ROOT.EnableImplicitMT(8)
-renamefile = True
+renamefile = False
 
-nHists  = 5
+nHists  = 6
 step    = 20
 maxdimx = 1500
 maxdimy = 1500
