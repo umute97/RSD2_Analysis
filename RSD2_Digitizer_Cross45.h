@@ -169,6 +169,8 @@ public :
    bool RotateLasPositions = false;
    float RangleLasPos = 0.;
    Int_t UseWeightedMean = 0;
+   unsigned int rebin_HDC = 1;
+   unsigned int rebin_positions = 1;
 
    Double_t weight;
    

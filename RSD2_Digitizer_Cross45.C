@@ -1,4 +1,4 @@
-//test comment for git commit -- Matteo
+//test comment for git commit Matteo
 
 #define RSD2_Digitizer_Cross45_cxx
 // The class definition in RSD2_Digitizer_Cross45.h has been generated automatically
@@ -49,6 +49,8 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
    */
 
    Correction = 11;
+
+   rebin_HDC = 2;
  
    ExpCor = 2; // 
 
@@ -61,7 +63,7 @@ void RSD2_Digitizer_Cross45::Begin(TTree * /*tree*/)
    UseRotation = 0;
    Rangle = 0* PI / 180.0;  // angle of rotation of training data
 
-   datataking = 2; // 1 = new data taking //2 = W3 datataking
+   datataking = 2; // 1 = new data taking //2 = W3 datataking 
 
    AScale = 1; //0./42. ;// gain X/66; 35, 53,66
    NScale = 1.2;
@@ -831,6 +833,7 @@ void RSD2_Digitizer_Cross45::Terminate()
 
   c4->cd(4);
 
+  HDCSignal->Rebin(rebin_HDC);
   HDCSignal->Fit("gaus", "tw");
  
 
@@ -971,6 +974,7 @@ void RSD2_Digitizer_Cross45::Terminate()
   c6->Divide(2,2);
   c6->cd(1);
 
+  HXAllPosRec->Rebin(rebin_positions);
   HXAllPosRec->Fit("gaus","tw");
 
   TPaveText *pt61 = new TPaveText(-190,  HXAllPosRec->GetMaximum()+10,0,HXAllPosRec->GetMaximum()+35);
@@ -982,6 +986,7 @@ void RSD2_Digitizer_Cross45::Terminate()
   
   c6->cd(2);
   
+  HYAllPosRec->Rebin(rebin_positions);
   HYAllPosRec->Fit("gaus", "tw");
   
 
