@@ -1,4 +1,3 @@
-//test comment for git commit Matteo
 
 #define RSD2_Digitizer_Cross45_cxx
 // The class definition in RSD2_Digitizer_Cross45.h has been generated automatically
