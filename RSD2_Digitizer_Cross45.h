@@ -93,6 +93,7 @@ public :
 
    int XOffset = 0;
    int YOffset = 0;
+   int n_integral_DC;
 
    int TPx1,TPx2,TPy1,TPy2;
 
