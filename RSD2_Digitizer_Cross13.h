@@ -102,7 +102,9 @@ Double_t xtr, ytr,xrr,yrr;
    int datataking = 0;
    int dcchannel = 0;
    int alow, ahigh;
-   int n_integral_DC = 800;
+   int n_integral_DC = 1000;
+   int rebin_positions = 1;
+   int rebin_DC = 4;
 
    Double_t MaxDim = 0;
    Double_t AScale = 1.;
