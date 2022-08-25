@@ -10,7 +10,7 @@ python3 Analysis_alert.py
 #cd W3/ 
 cd /home/daq/Desktop/Luca/Analisi_RSD/RSD2_Analysis/test_newfiles
 #moves the file into the stats directory and renames it
-python3 test_rootfile.py /home/daq/hdd8TB_bis/RSD2/stats_N_script/RunXX.root 
+python3 test_rootfile.py /home/daq/hdd8TB_bis/RSD2/stats_N_script/RunXX.root 1
 #from here on no actions on the output root file are taken
 for i in {0..15}
 do

@@ -17,11 +17,11 @@ maxdimy = 1500
 fHist     = []
 fCanvas   = []
 
-if len(sys.argv) == 1:
+if len(sys.argv) == 1 or len(sys.argv) > 3:
 	filename = "/home/daq/hdd8TB_bis/RSD2/stats_N_script/RunXX.root" # "/home/daq/hdd8TB/RSD2/stats_N_script/Run22_240.root" # " 
 if len(sys.argv) == 2:
 	filename = sys.argv[1]
-if len(sys.argv) > 2:
+if len(sys.argv) == 3:
         filename = sys.argv[1]
         renamefile = sys.argv[2]
 myFile = TFile.Open(filename, "OPEN")
@@ -59,3 +59,5 @@ if renamefile:
 		savepath = savepath.replace(".root","") + "_RenameThis.root"
 	print(f"saving file as: ", savepath)
 	shutil.move(filename,savepath)
+
+#input("")
