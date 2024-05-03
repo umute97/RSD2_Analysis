@@ -1,3 +1,7 @@
+// External includes
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+
 // ROOT includes
 #include "TFile.h"
 #include "TTree.h"
@@ -48,7 +52,7 @@ int main()
 
 	TFile *OutputFile = new TFile("/home/uelicabu/test.root", "recreate");
 
-	ifstream InputCARD("Input_Folder_Digitizer_wfm.txt");
+	ifstream InputCARD("Input_Folder_Digitizer_wfm.ini");
 
 	if (!InputCARD)
 	{
@@ -56,17 +60,24 @@ int main()
 		return (0);
 	}
 
+	// Read the configuration file in
+	boost::property_tree::ptree pt;
+	boost::property_tree::ini_parser::read_ini("Input_Folder_Digitizer_wfm.ini", pt);
+
+	// Read run variables
+	nrun = pt.get<int>("Run.nrun");
+	ntrig = pt.get<int>("Run.ntrig");
+	Max_eventperpoint = pt.get<int>("Run.event_per_point");
+	Max_skippos = pt.get<int>("Run.max_skippos");
+	nchro = pt.get<int>("Run.nchro");
+	MaxEvt = pt.get<int>("Run.max_evts");
+
 	// read the active numnber of channels
 	int ntmp;
 	int Nth = 0;
 	int np_Max = 800;	 // 800;
 	int np_acq = 0;		 // points in acquisizion, set to == size
 	int np_offset = 200; // 100; //starting point for waveform analysis
-
-	//  TRandom *xi = new TRandom();
-	// samples in t
-	InputCARD >> pip >> ntmp;
-	nchro = ntmp;
 
 	bool FWF2 = false; // file weightfield
 
@@ -314,23 +325,12 @@ int main()
 	// Loop on different runs
 	while (1)
 	{
-		pip = "";
-		toffee = "";
-		if (InputCARD.eof())
-			break;
 
-		// Read run variables
-		InputCARD >> pip >> nrun >> pip >> ntrig >> pip >> Max_eventperpoint >> pip >> Max_skippos >> pip >> nchro >> pip >> MaxEvt;
-		if (nrun == -1)
-			break;
 		cout << endl
 			 << endl
 			 << "Run " << nrun << "\t " << nchro << " channels"
 			 << " Events to be analized = " << MaxEvt - ntrig << " Event per point = " << Max_eventperpoint << " Skipping points # " << Max_skippos << endl;
 		// Note: ntrig is the number of the FIRST trigger of the run
-
-		//     if ( (nrun >= 23000 && nrun <= 24000 ) || (nrun >= 33000 && nrun <= 34000 ) )
-		//	if (np_offset = 600;
 
 		// Inizialization of data run variables
 		ntrig = ntrig - 1;
@@ -341,11 +341,43 @@ int main()
 
 		// Inizialization of program run variables
 		running = 1;
-		char title[200];
-		// Inizialization of channel variables for this run
+		string title;
 
-		InputCARD >> toffee >> InputNA >> pip >> nme; // NOTE: InputNAME is the complete path + file name without trigger number and final .txt
-		sprintf(title, "%s", InputNA.c_str());
+		// Set the input file name
+		title = pt.get<string>("Run.input_file");
+
+		// pip = "";
+		// toffee = "";
+		// if (InputCARD.eof())
+		// 	break;
+
+		// // Read run variables
+		// InputCARD >> pip >> nrun >> pip >> ntrig >> pip >> Max_eventperpoint >> pip >> Max_skippos >> pip >> nchro >> pip >> MaxEvt;
+		// if (nrun == -1)
+		// 	break;
+		// cout << endl
+		// 	 << endl
+		// 	 << "Run " << nrun << "\t " << nchro << " channels"
+		// 	 << " Events to be analized = " << MaxEvt - ntrig << " Event per point = " << Max_eventperpoint << " Skipping points # " << Max_skippos << endl;
+		// // Note: ntrig is the number of the FIRST trigger of the run
+
+		// //     if ( (nrun >= 23000 && nrun <= 24000 ) || (nrun >= 33000 && nrun <= 34000 ) )
+		// //	if (np_offset = 600;
+
+		// // Inizialization of data run variables
+		// ntrig = ntrig - 1;
+
+		// ostringstream convert;
+		// convert << nrun;
+		// String_nrun = convert.str();
+
+		// // Inizialization of program run variables
+		// running = 1;
+		// char title[200];
+		// // Inizialization of channel variables for this run
+
+		// InputCARD >> toffee >> InputNA >> pip >> nme; // NOTE: InputNAME is the complete path + file name without trigger number and final .txt
+		// sprintf(title, "%s", InputNA.c_str());
 
 		cout << endl
 			 << " File name:" << endl
@@ -364,7 +396,7 @@ int main()
 			cout << "Channel 1  with  Freq. Cut  = " << FreqCut[1] * 1e-6 << " MHz" << endl;
 		}
 
-		TFile *f = new TFile(title);
+		TFile *f = new TFile(title.c_str());
 		TTree *tree = (TTree *)f->Get("wfm");
 		TTree *metaTree = (TTree *)f->Get("meta");
 
