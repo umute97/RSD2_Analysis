@@ -336,7 +336,7 @@ TBranch        *b_t3;   //!
    // Declaration of leaf types for digitizer
    Double_t        bias;
    Double_t        Dig_freq;
-   Double_t        size;
+   Double_t        nSize;
    std::vector<double>  *pos;
    std::vector<double>  *w0;
    std::vector<double>  *w1;
