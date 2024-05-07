@@ -397,8 +397,8 @@ int main()
 		}
 
 		TFile *f = new TFile(title.c_str());
-		TTree *tree = (TTree *)f->Get("wfm");
-		TTree *metaTree = (TTree *)f->Get("meta");
+		TTree *tree = dynamic_cast<TTree *>(f->Get("wfm"));
+		TTree *metaTree = dynamic_cast<TTree *>(f->Get("meta"));
 
 		//  tree->SetBranchAddress("i_timestamp", &i_timestamp, &b_i_timestamp);
 		// tree->SetBranchAddress("i_current", &i_current, &b_i_current);
@@ -456,6 +456,7 @@ int main()
 			if (ntrig % 200 == 0)
 				cout << "Event = " << event << " at trigger = " << ntrig << endl;
 			tree->GetEntry(ntrig);
+			metaTree->GetEntry(ntrig);
 
 			//  if(pos[0][0]>1000 || pos[0][1]>1000) continue;
 

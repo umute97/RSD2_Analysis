@@ -193,8 +193,8 @@ Double_t NMax[NCHRO];
 int polarity[NCHRO];
 
 // Analysis branches
-Double_t XPos;
-Double_t YPos;
+Long_t XPos;
+Long_t YPos;
 Double_t WF2gain;
 Int_t Wafer;
 Int_t LGain;
@@ -322,25 +322,25 @@ TBranch *b_t3;          //!
 Double_t bias;
 Double_t Dig_freq;
 Int_t nSize;
-std::vector<Int_t> *pos;
-std::vector<Double_t> *w0;
-std::vector<Double_t> *w1;
-std::vector<Double_t> *w2;
-std::vector<Double_t> *w3;
-std::vector<Double_t> *w4;
-std::vector<Double_t> *w5;
-std::vector<Double_t> *w6;
-std::vector<Double_t> *w7;
-std::vector<Double_t> *w8;
-std::vector<Double_t> *w9;
-std::vector<Double_t> *w10;
-std::vector<Double_t> *w11;
-std::vector<Double_t> *w12;
-std::vector<Double_t> *w13;
-std::vector<Double_t> *w14;
-std::vector<Double_t> *w15;
-std::vector<Double_t> *trg0;
-std::vector<Double_t> *trg1;
+long *pos[3];
+double *w0[1024];
+double *w1[1024];
+double *w2[1024];
+double *w3[1024];
+double *w4[1024];
+double *w5[1024];
+double *w6[1024];
+double *w7[1024];
+double *w8[1024];
+double *w9[1024];
+double *w10[1024];
+double *w11[1024];
+double *w12[1024];
+double *w13[1024];
+double *w14[1024];
+double *w15[1024];
+double *trg0[1024];
+double *trg1[1024];
 
 // List of branches
 TBranch *b_bias; //!
